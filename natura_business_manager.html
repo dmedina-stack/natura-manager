@@ -1,0 +1,2772 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Mi Negocio Natura - Gestor Profesional</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Tailwind Config for Custom Colors (Natura Orange & Sage Green Palette) -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        natura: {
+                            orange: '#ff6600',
+                            orangeDark: '#e05a00',
+                            sage: '#8fa89b',
+                            sageLight: '#eef3f0',
+                            sageDark: '#4a6356',
+                            cream: '#f9f8f6',
+                            cardBg: '#ffffff',
+                            cardDark: '#1f2937'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom scrollbar and mobile polish */
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+        input, select, textarea {
+            user-select: text;
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        /* Modal backdrop transition */
+        .modal-backdrop {
+            backdrop-filter: blur(4px);
+            background: rgba(0, 0, 0, 0.5);
+        }
+    </style>
+</head>
+<body class="bg-natura-cream text-gray-800 dark:bg-gray-900 dark:text-gray-100 min-h-screen flex flex-col justify-between selection:bg-orange-500 selection:text-white">
+
+    <!-- AUTHENTICATION SCREEN -->
+    <div id="authScreen" class="fixed inset-0 z-50 bg-natura-sageLight dark:bg-gray-900 flex flex-col items-center justify-center p-4 hidden">
+        <div class="bg-white dark:bg-gray-800 w-full max-w-md rounded-3xl shadow-2xl p-8 border border-natura-sage/30 flex flex-col items-center">
+            <!-- Natura Logo Header -->
+            <div class="flex items-center gap-3 mb-6">
+                <div class="w-14 h-14 rounded-2xl bg-natura-orange flex items-center justify-center shadow-lg shadow-orange-500/30">
+                    <svg class="w-9 h-9 text-white fill-current" viewBox="0 0 24 24">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Natura Gestión</h1>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Tu emprendimiento profesional</p>
+                </div>
+            </div>
+
+            <!-- Login con Google (Supabase) -->
+            <div id="cloudBox" class="w-full mb-5 space-y-2">
+                <button id="googleBtn" onclick="cloudLogin()" class="w-full py-3 rounded-2xl border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 font-semibold text-sm flex items-center justify-center gap-2 hover:border-natura-orange transition active:scale-95">
+                    <i class="fa-brands fa-google text-natura-orange"></i> Continuar con Google
+                </button>
+                <p id="cloudStatus" class="text-[11px] text-center text-gray-500 dark:text-gray-400">Guarda tus datos en la nube y úsalos en todos tus dispositivos.</p>
+            </div>
+
+            <!-- Login / Pin Form -->
+            <div id="loginFormContainer" class="w-full space-y-4">
+                <div class="text-center mb-2">
+                    <h2 id="authTitle" class="text-lg font-semibold text-gray-800 dark:text-gray-200">Ingresar PIN de Seguridad</h2>
+                    <p class="text-xs text-gray-500">Ingresa tu PIN de 4 dígitos para acceder a tus datos</p>
+                </div>
+                
+                <div class="flex justify-center gap-3 my-4">
+                    <input type="password" maxlength="1" class="pin-input w-14 h-14 text-center text-2xl font-bold rounded-2xl border-2 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 focus:border-natura-orange focus:outline-none" autofocus />
+                    <input type="password" maxlength="1" class="pin-input w-14 h-14 text-center text-2xl font-bold rounded-2xl border-2 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 focus:border-natura-orange focus:outline-none" />
+                    <input type="password" maxlength="1" class="pin-input w-14 h-14 text-center text-2xl font-bold rounded-2xl border-2 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 focus:border-natura-orange focus:outline-none" />
+                    <input type="password" maxlength="1" class="pin-input w-14 h-14 text-center text-2xl font-bold rounded-2xl border-2 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 focus:border-natura-orange focus:outline-none" />
+                </div>
+
+                <button onclick="verifyPin()" class="w-full py-3.5 bg-natura-orange hover:bg-natura-orangeDark text-white font-semibold rounded-2xl shadow-lg shadow-orange-500/25 transition-all transform active:scale-95 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-lock-open"></i> Desbloquear Aplicación
+                </button>
+
+                <div class="text-center mt-4">
+                    <button onclick="toggleAuthMode()" class="text-xs text-natura-orangeDark dark:text-natura-orange font-medium hover:underline">
+                        ¿Olvidaste tu PIN o primera vez? Configurar / Resetear PIN
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION CONTAINER -->
+    <div id="toastContainer" class="fixed top-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- GENERAL MODAL CONTAINER -->
+    <div id="globalModal" class="fixed inset-0 z-40 modal-backdrop flex items-center justify-center p-4 hidden">
+        <div id="modalContent" class="bg-white dark:bg-gray-800 w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            <!-- Dynamic Modal Header & Body -->
+        </div>
+    </div>
+
+    <!-- TOP HEADER -->
+    <header class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md sticky top-0 z-30 border-b border-gray-100 dark:border-gray-700 px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-natura-orange flex items-center justify-center shadow-md shadow-orange-500/20">
+                <svg class="w-6 h-6 text-white fill-current" viewBox="0 0 24 24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/>
+                </svg>
+            </div>
+            <div>
+                <h1 id="headerBusinessName" class="font-bold text-gray-900 dark:text-white text-base leading-tight">Mi Negocio Natura</h1>
+                <p id="headerUserName" class="text-xs text-gray-500 dark:text-gray-400">Consultora Oficial</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-2">
+            <!-- Notifications Bell -->
+            <button onclick="openNotificationsModal()" class="relative p-2.5 rounded-xl bg-natura-sageLight dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-natura-sage/30 transition">
+                <i class="fa-regular fa-bell text-lg"></i>
+                <span id="notifBadge" class="absolute -top-1 -right-1 bg-natura-orange text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center shadow">0</span>
+            </button>
+            <!-- User Profile / Settings Quick Button -->
+            <button onclick="switchTab('config')" class="p-2.5 rounded-xl bg-natura-sageLight dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-natura-sage/30 transition">
+                <i class="fa-solid fa-gear text-lg"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT VIEW AREA -->
+    <main class="flex-1 pb-24 overflow-y-auto">
+        
+        <!-- 1. DASHBOARD VIEW -->
+        <section id="view-dashboard" class="view-section p-4 max-w-4xl mx-auto space-y-6">
+            <!-- Welcome Banner & Quick Info -->
+            <div class="bg-gradient-to-r from-natura-sageDark to-natura-sage text-white rounded-3xl p-6 shadow-xl relative overflow-hidden flex flex-col justify-between">
+                <div class="absolute -right-6 -bottom-6 opacity-10">
+                    <svg class="w-48 h-48 fill-current" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/></svg>
+                </div>
+                <div class="flex justify-between items-start z-10">
+                    <div>
+                        <span class="bg-white/20 text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wider">Ciclo Activo Natura</span>
+                        <h2 id="dashWelcomeTitle" class="text-2xl font-bold mt-2">¡Hola, Vendedora! ✨</h2>
+                        <p class="text-sm text-natura-cream/90 mt-1">Controlá tu negocio y potenciá tus ventas hoy.</p>
+                    </div>
+                    <div id="dashLogoContainer" class="w-12 h-12 rounded-full bg-white p-1 shadow-md flex items-center justify-center overflow-hidden">
+                        <img id="dashLogoImg" src="https://placehold.co/100x100/ff6600/ffffff?text=N" alt="Logo" class="w-full h-full object-cover rounded-full" onerror="this.src='https://placehold.co/100x100/ff6600/ffffff?text=N'">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Resumen del Día Grid Cards -->
+            <div class="space-y-3">
+                <h3 class="text-sm font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Resumen del Día</h3>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <div class="bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col justify-between">
+                        <span class="text-xs text-gray-500 font-medium">Ventas Hoy</span>
+                        <span id="dashVentasHoy" class="text-xl font-bold text-gray-900 dark:text-white mt-2">$0</span>
+                    </div>
+                    <div class="bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col justify-between">
+                        <span class="text-xs text-gray-500 font-medium">Dinero Cobrado</span>
+                        <span id="dashCobradoHoy" class="text-xl font-bold text-emerald-600 dark:text-emerald-400 mt-2">$0</span>
+                    </div>
+                    <div class="bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col justify-between">
+                        <span class="text-xs text-gray-500 font-medium">Dinero Pendiente</span>
+                        <span id="dashPendienteHoy" class="text-xl font-bold text-amber-600 dark:text-amber-400 mt-2">$0</span>
+                    </div>
+                    <div class="bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col justify-between">
+                        <span class="text-xs text-gray-500 font-medium">Stock Bajo</span>
+                        <span id="dashStockBajo" class="text-xl font-bold text-rose-600 dark:text-rose-400 mt-2">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hoy Tengo Que Cobrar (Strategic Card) -->
+            <div onclick="switchTab('deudas')" class="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/50 rounded-3xl p-5 shadow-sm cursor-pointer hover:shadow-md transition">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 rounded-xl bg-amber-500 text-white flex items-center justify-center font-bold text-sm">
+                            <i class="fa-solid fa-wallet"></i>
+                        </div>
+                        <h3 class="font-bold text-amber-900 dark:text-amber-200">Hoy tengo que cobrar</h3>
+                    </div>
+                    <span id="dashTotalCobrarBadge" class="bg-amber-200/60 dark:bg-amber-900/60 text-amber-900 dark:text-amber-100 text-xs font-bold px-3 py-1 rounded-full">$0</span>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs font-medium text-amber-800 dark:text-amber-300">
+                    <div class="flex items-center gap-2 bg-white/60 dark:bg-gray-800/60 p-2.5 rounded-xl">
+                        <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
+                        <span id="dashCountVencidos">0 vencidos</span>
+                    </div>
+                    <div class="flex items-center gap-2 bg-white/60 dark:bg-gray-800/60 p-2.5 rounded-xl">
+                        <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+                        <span id="dashCountHoy">0 vencen hoy</span>
+                    </div>
+                    <div class="flex items-center gap-2 bg-white/60 dark:bg-gray-800/60 p-2.5 rounded-xl">
+                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                        <span id="dashCountProximos">0 próximos</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Accesos Rápidos (Big Buttons) -->
+            <div class="space-y-3">
+                <h3 class="text-sm font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Accesos Rápidos</h3>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <button onclick="openNewClientModal()" class="bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col items-center justify-center gap-2 hover:border-natura-orange transition group">
+                        <div class="w-12 h-12 rounded-2xl bg-orange-100 dark:bg-orange-950/50 text-natura-orange flex items-center justify-center text-xl group-hover:scale-110 transition">
+                            <i class="fa-solid fa-user-plus"></i>
+                        </div>
+                        <span class="text-xs font-semibold text-gray-800 dark:text-gray-200">Nuevo Cliente</span>
+                    </button>
+                    <button onclick="openNewSaleModal()" class="bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col items-center justify-center gap-2 hover:border-natura-orange transition group">
+                        <div class="w-12 h-12 rounded-2xl bg-emerald-100 dark:bg-emerald-950/50 text-emerald-600 flex items-center justify-center text-xl group-hover:scale-110 transition">
+                            <i class="fa-solid fa-bag-shopping"></i>
+                        </div>
+                        <span class="text-xs font-semibold text-gray-800 dark:text-gray-200">Nueva Venta</span>
+                    </button>
+                    <button onclick="openNewProductModal()" class="bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col items-center justify-center gap-2 hover:border-natura-orange transition group">
+                        <div class="w-12 h-12 rounded-2xl bg-blue-100 dark:bg-blue-950/50 text-blue-600 flex items-center justify-center text-xl group-hover:scale-110 transition">
+                            <i class="fa-solid fa-box-open"></i>
+                        </div>
+                        <span class="text-xs font-semibold text-gray-800 dark:text-gray-200">Nuevo Producto</span>
+                    </button>
+                    <button onclick="switchTab('deudas')" class="bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col items-center justify-center gap-2 hover:border-natura-orange transition group">
+                        <div class="w-12 h-12 rounded-2xl bg-amber-100 dark:bg-amber-950/50 text-amber-600 flex items-center justify-center text-xl group-hover:scale-110 transition">
+                            <i class="fa-brands fa-whatsapp"></i>
+                        </div>
+                        <span class="text-xs font-semibold text-gray-800 dark:text-gray-200">WhatsApp Deudores</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Cuentas por Cobrar Preview list on Dashboard -->
+            <div class="space-y-3">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-sm font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Cuentas por Cobrar Recientes</h3>
+                    <button onclick="switchTab('deudas')" class="text-xs font-semibold text-natura-orangeDark dark:text-natura-orange hover:underline">Ver todas</button>
+                </div>
+                <div id="dashReceivablesList" class="space-y-2">
+                    <!-- Dynamic List -->
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. CLIENTES VIEW -->
+        <section id="view-clientes" class="view-section p-4 max-w-4xl mx-auto space-y-4 hidden">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                <div>
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white">Gestión de Clientes</h2>
+                    <p class="text-xs text-gray-500">Administra tu cartera de clientes y cuentas</p>
+                </div>
+                <button onclick="openNewClientModal()" class="w-full sm:w-auto px-5 py-2.5 bg-natura-orange hover:bg-natura-orangeDark text-white font-semibold rounded-xl shadow-md transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-user-plus"></i> Nuevo Cliente
+                </button>
+            </div>
+
+            <!-- Search and Filter Bar -->
+            <div class="flex flex-col sm:flex-row gap-2">
+                <div class="relative flex-1">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-gray-400"></i>
+                    <input type="text" id="clientSearchInput" oninput="renderClientsList()" placeholder="Buscar por nombre, teléfono o localidad..." class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:border-natura-orange focus:outline-none">
+                </div>
+                <select id="clientFilterSelect" onchange="renderClientsList()" class="px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm font-medium focus:border-natura-orange focus:outline-none">
+                    <option value="all">Todos los Clientes</option>
+                    <option value="active">Activos</option>
+                    <option value="debt">Con Deuda Pendiente</option>
+                </select>
+            </div>
+
+            <!-- Clients List Container -->
+            <div id="clientsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <!-- Populated dynamically -->
+            </div>
+        </section>
+
+        <!-- 3. VENTAS / NUEVA VENTA VIEW -->
+        <section id="view-ventas" class="view-section p-4 max-w-4xl mx-auto space-y-4 hidden">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white">Historial de Ventas</h2>
+                    <p class="text-xs text-gray-500">Registros y comprobantes de ventas</p>
+                </div>
+                <button onclick="openNewSaleModal()" class="px-5 py-2.5 bg-natura-orange hover:bg-natura-orangeDark text-white font-semibold rounded-xl shadow-md transition flex items-center gap-2">
+                    <i class="fa-solid fa-bag-shopping"></i> Nueva Venta
+                </button>
+            </div>
+
+            <div class="flex gap-2">
+                <div class="relative flex-1">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-gray-400"></i>
+                    <input type="text" id="salesSearchInput" oninput="renderSalesList()" placeholder="Buscar por cliente o número de venta..." class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:border-natura-orange focus:outline-none">
+                </div>
+            </div>
+
+            <div id="salesContainer" class="space-y-3">
+                <!-- Sales list dynamic -->
+            </div>
+        </section>
+
+        <!-- 4. STOCK VIEW -->
+        <section id="view-stock" class="view-section p-4 max-w-4xl mx-auto space-y-4 hidden">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                <div>
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white">Inventario y Stock</h2>
+                    <p class="text-xs text-gray-500">Controla productos, precios y niveles de stock</p>
+                </div>
+                <div class="flex gap-2 w-full sm:w-auto">
+                    <button onclick="openNewProductModal()" class="flex-1 sm:flex-none px-4 py-2.5 bg-natura-orange hover:bg-natura-orangeDark text-white font-semibold rounded-xl shadow-md transition flex items-center justify-center gap-2 text-sm">
+                        <i class="fa-solid fa-plus"></i> Producto
+                    </button>
+                    <button onclick="openStockMovementsModal()" class="flex-1 sm:flex-none px-4 py-2.5 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 font-semibold rounded-xl transition flex items-center justify-center gap-2 text-sm">
+                        <i class="fa-solid fa-clock-rotate-left"></i> Movimientos
+                    </button>
+                </div>
+            </div>
+
+            <!-- Low stock alert banner if any -->
+            <div id="lowStockAlertBanner" class="hidden bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900 rounded-2xl p-4 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-rose-500 text-white flex items-center justify-center font-bold">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-rose-900 dark:text-rose-200 text-sm">Productos con stock bajo o agotado</h4>
+                        <p class="text-xs text-rose-700 dark:text-rose-300">Hay productos que necesitan reposición urgente.</p>
+                    </div>
+                </div>
+                <button onclick="filterStockLow()" class="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-lg transition">Ver Reposición</button>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-2">
+                <div class="relative flex-1">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-gray-400"></i>
+                    <input type="text" id="stockSearchInput" oninput="renderStockList()" placeholder="Buscar por código, nombre, línea o categoría..." class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:border-natura-orange focus:outline-none">
+                </div>
+                <select id="stockCategoryFilter" onchange="renderStockList()" class="px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm font-medium focus:border-natura-orange focus:outline-none">
+                    <option value="all">Todas las Categorías</option>
+                    <option value="Perfumería">Perfumería</option>
+                    <option value="Cuidado corporal">Cuidado corporal</option>
+                    <option value="Rostro">Rostro</option>
+                    <option value="Cabello">Cabello</option>
+                    <option value="Maquillaje">Maquillaje</option>
+                    <option value="Higiene">Higiene</option>
+                    <option value="Kits">Kits</option>
+                    <option value="Promociones">Promociones</option>
+                    <option value="Otros">Otros</option>
+                </select>
+            </div>
+
+            <div id="stockContainer" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <!-- Stock list dynamic -->
+            </div>
+        </section>
+
+        <!-- 5. DEUDAS / CUENTAS CORRIENTES VIEW -->
+        <section id="view-deudas" class="view-section p-4 max-w-4xl mx-auto space-y-4 hidden">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                <div>
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white">Cuentas Corrientes y Deudores</h2>
+                    <p class="text-xs text-gray-500">Controla cobros pendientes y recordatorios por WhatsApp</p>
+                </div>
+                <button onclick="openMassWhatsAppModal()" class="w-full sm:w-auto px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl shadow-md transition flex items-center justify-center gap-2">
+                    <i class="fa-brands fa-whatsapp text-lg"></i> Recordar Deudas Masivo
+                </button>
+            </div>
+
+            <!-- Filter tabs -->
+            <div class="flex gap-2 overflow-x-auto hide-scrollbar pb-1">
+                <button onclick="setDebtFilter('all')" class="debt-tab-btn px-4 py-2 rounded-xl text-xs font-semibold bg-natura-orange text-white transition whitespace-nowrap shadow-sm">Todos</button>
+                <button onclick="setDebtFilter('vencidos')" class="debt-tab-btn px-4 py-2 rounded-xl text-xs font-semibold bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 transition whitespace-nowrap border border-gray-200 dark:border-gray-700">Vencidos</button>
+                <button onclick="setDebtFilter('hoy')" class="debt-tab-btn px-4 py-2 rounded-xl text-xs font-semibold bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 transition whitespace-nowrap border border-gray-200 dark:border-gray-700">Vencen Hoy</button>
+                <button onclick="setDebtFilter('proximos')" class="debt-tab-btn px-4 py-2 rounded-xl text-xs font-semibold bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 transition whitespace-nowrap border border-gray-200 dark:border-gray-700">Próximos</button>
+            </div>
+
+            <div id="debtsContainer" class="space-y-3">
+                <!-- Debts list dynamic -->
+            </div>
+        </section>
+
+        <!-- 6. "MÁS" MENU VIEW -->
+        <section id="view-mas" class="view-section p-4 max-w-4xl mx-auto space-y-6 hidden">
+            <div>
+                <h2 class="text-xl font-bold text-gray-900 dark:text-white">Menú y Herramientas</h2>
+                <p class="text-xs text-gray-500">Pedidos, reportes, gastos, plantillas y configuración</p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <button onclick="openPedidosView()" class="bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex items-center gap-4 hover:border-natura-orange transition text-left group">
+                    <div class="w-12 h-12 rounded-2xl bg-indigo-100 dark:bg-indigo-950 text-indigo-600 flex items-center justify-center text-xl group-hover:scale-110 transition shrink-0">
+                        <i class="fa-solid fa-clipboard-list"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-gray-900 dark:text-white text-sm">Gestión de Pedidos</h3>
+                        <p class="text-xs text-gray-500">Pendientes, preparando, listos y entregados</p>
+                    </div>
+                </button>
+
+                <button onclick="openGastosView()" class="bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex items-center gap-4 hover:border-natura-orange transition text-left group">
+                    <div class="w-12 h-12 rounded-2xl bg-rose-100 dark:bg-rose-950 text-rose-600 flex items-center justify-center text-xl group-hover:scale-110 transition shrink-0">
+                        <i class="fa-solid fa-receipt"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-gray-900 dark:text-white text-sm">Gastos del Negocio</h3>
+                        <p class="text-xs text-gray-500">Registro de costos, envíos y packaging</p>
+                    </div>
+                </button>
+
+                <button onclick="openReportesView()" class="bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex items-center gap-4 hover:border-natura-orange transition text-left group">
+                    <div class="w-12 h-12 rounded-2xl bg-emerald-100 dark:bg-emerald-950 text-emerald-600 flex items-center justify-center text-xl group-hover:scale-110 transition shrink-0">
+                        <i class="fa-solid fa-chart-pie"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-gray-900 dark:text-white text-sm">Reportes y Estadísticas</h3>
+                        <p class="text-xs text-gray-500">Ventas, ganancias, balances y exportación PDF</p>
+                    </div>
+                </button>
+
+                <button onclick="openMensajesView()" class="bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex items-center gap-4 hover:border-natura-orange transition text-left group">
+                    <div class="w-12 h-12 rounded-2xl bg-teal-100 dark:bg-teal-950 text-teal-600 flex items-center justify-center text-xl group-hover:scale-110 transition shrink-0">
+                        <i class="fa-brands fa-whatsapp"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-gray-900 dark:text-white text-sm">Plantillas de WhatsApp</h3>
+                        <p class="text-xs text-gray-500">Mensajes predefinidos y variables automáticas</p>
+                    </div>
+                </button>
+
+                <button onclick="switchTab('config')" class="bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex items-center gap-4 hover:border-natura-orange transition text-left group">
+                    <div class="w-12 h-12 rounded-2xl bg-orange-100 dark:bg-orange-950 text-natura-orange flex items-center justify-center text-xl group-hover:scale-110 transition shrink-0">
+                        <i class="fa-solid fa-sliders"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-gray-900 dark:text-white text-sm">Configuración y Seguridad</h3>
+                        <p class="text-xs text-gray-500">PIN, logo, datos del negocio, backup y formato</p>
+                    </div>
+                </button>
+            </div>
+        </section>
+
+        <!-- 7. CONFIGURACIÓN VIEW -->
+        <section id="view-config" class="view-section p-4 max-w-4xl mx-auto space-y-6 hidden">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white">Configuración del Negocio</h2>
+                    <p class="text-xs text-gray-500">Personaliza tu perfil, seguridad y datos de cobro</p>
+                </div>
+                <button onclick="switchTab('dashboard')" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded-xl text-xs font-semibold hover:bg-gray-300 transition">
+                    <i class="fa-solid fa-arrow-left"></i> Volver
+                </button>
+            </div>
+
+            <div class="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 space-y-4">
+                <h3 class="font-bold text-gray-800 dark:text-gray-200 text-sm border-b pb-2 border-gray-100 dark:border-gray-700 flex items-center gap-2">
+                    <i class="fa-solid fa-store text-natura-orange"></i> Datos de la Consultora y Negocio
+                </h3>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">Nombre del Negocio</label>
+                        <input type="text" id="cfgBusinessName" class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-sm focus:border-natura-orange focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">Nombre de la Vendedora</label>
+                        <input type="text" id="cfgUserName" class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-sm focus:border-natura-orange focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">WhatsApp de Contacto (ej: 1123456789)</label>
+                        <input type="text" id="cfgWhatsapp" class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-sm focus:border-natura-orange focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">Alias / CVU para Cobros</label>
+                        <input type="text" id="cfgAlias" class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-sm focus:border-natura-orange focus:outline-none">
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label class="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">URL del Logo (Imagen)</label>
+                        <input type="text" id="cfgLogoUrl" class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-sm focus:border-natura-orange focus:outline-none" placeholder="https://...">
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label class="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">Texto de Agradecimiento para Comprobantes / WhatsApp</label>
+                        <textarea id="cfgThankYou" rows="2" class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-sm focus:border-natura-orange focus:outline-none"></textarea>
+                    </div>
+                </div>
+
+                <div class="pt-4 border-t border-gray-100 dark:border-gray-700 flex justify-end">
+                    <button onclick="saveBusinessConfig()" class="px-6 py-2.5 bg-natura-orange hover:bg-natura-orangeDark text-white font-semibold rounded-xl shadow-md transition text-sm">
+                        Guardar Cambios
+                    </button>
+                </div>
+            </div>
+
+            <!-- Security & Backup Card -->
+            <div class="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 space-y-4">
+                <h3 class="font-bold text-gray-800 dark:text-gray-200 text-sm border-b pb-2 border-gray-100 dark:border-gray-700 flex items-center gap-2">
+                    <i class="fa-solid fa-shield-halved text-natura-orange"></i> Seguridad y Datos
+                </h3>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">Cambiar PIN de Seguridad (4 dígitos)</label>
+                        <div class="flex gap-2">
+                            <input type="password" maxlength="4" id="newPinInput" placeholder="Nuevo PIN" class="flex-1 px-3.5 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-sm focus:border-natura-orange focus:outline-none">
+                            <button onclick="updateSecurityPin()" class="px-4 py-2 bg-gray-800 dark:bg-gray-700 text-white font-medium text-xs rounded-xl hover:bg-gray-700 transition">Actualizar PIN</button>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">Modo de Apariencia</label>
+                        <select id="themeSelector" onchange="changeThemeMode(this.value)" class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-sm focus:border-natura-orange focus:outline-none font-medium">
+                            <option value="light">☀️ Tema Claro</option>
+                            <option value="dark">🌙 Tema Oscuro</option>
+                            <option value="auto">⚙️ Automático / Sistema</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="flex flex-wrap gap-3 pt-4 border-t border-gray-100 dark:border-gray-700">
+                    <button onclick="exportDataBackup()" class="px-4 py-2.5 bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 font-semibold rounded-xl text-xs hover:bg-blue-100 transition flex items-center gap-2">
+                        <i class="fa-solid fa-download"></i> Hacer Backup de Datos (JSON)
+                    </button>
+                    <label class="px-4 py-2.5 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 font-semibold rounded-xl text-xs hover:bg-emerald-100 transition flex items-center gap-2 cursor-pointer">
+                        <i class="fa-solid fa-upload"></i> Restaurar Backup
+                        <input type="file" id="importFile" onchange="importDataBackup(event)" accept=".json" class="hidden">
+                    </label>
+                    <button onclick="confirmFactoryReset()" class="px-4 py-2.5 bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 font-semibold rounded-xl text-xs hover:bg-rose-100 transition flex items-center gap-2 ml-auto">
+                        <i class="fa-solid fa-triangle-exclamation"></i> Formatear / Borrar Todo
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MOBILE BOTTOM NAVIGATION BAR -->
+    <nav class="bg-white/90 dark:bg-gray-800/90 backdrop-blur-md fixed bottom-0 left-0 right-0 z-30 border-t border-gray-100 dark:border-gray-700 px-2 py-2 flex items-center justify-around shadow-lg">
+        <button onclick="switchTab('dashboard')" class="nav-btn flex flex-col items-center justify-center flex-1 py-1 text-gray-500 dark:text-gray-400 hover:text-natura-orange transition group" data-target="dashboard">
+            <i class="fa-solid fa-house text-lg group-hover:scale-110 transition"></i>
+            <span class="text-[10px] font-medium mt-1">Inicio</span>
+        </button>
+        <button onclick="switchTab('clientes')" class="nav-btn flex flex-col items-center justify-center flex-1 py-1 text-gray-500 dark:text-gray-400 hover:text-natura-orange transition group" data-target="clientes">
+            <i class="fa-solid fa-users text-lg group-hover:scale-110 transition"></i>
+            <span class="text-[10px] font-medium mt-1">Clientes</span>
+        </button>
+        <button onclick="switchTab('ventas')" class="nav-btn flex flex-col items-center justify-center flex-1 py-1 text-gray-500 dark:text-gray-400 hover:text-natura-orange transition group" data-target="ventas">
+            <i class="fa-solid fa-bag-shopping text-lg group-hover:scale-110 transition"></i>
+            <span class="text-[10px] font-medium mt-1">Ventas</span>
+        </button>
+        <button onclick="switchTab('stock')" class="nav-btn flex flex-col items-center justify-center flex-1 py-1 text-gray-500 dark:text-gray-400 hover:text-natura-orange transition group" data-target="stock">
+            <i class="fa-solid fa-boxes-stacked text-lg group-hover:scale-110 transition"></i>
+            <span class="text-[10px] font-medium mt-1">Stock</span>
+        </button>
+        <button onclick="switchTab('deudas')" class="nav-btn flex flex-col items-center justify-center flex-1 py-1 text-gray-500 dark:text-gray-400 hover:text-natura-orange transition group" data-target="deudas">
+            <i class="fa-solid fa-wallet text-lg group-hover:scale-110 transition"></i>
+            <span class="text-[10px] font-medium mt-1">Deudas</span>
+        </button>
+        <button onclick="switchTab('mas')" class="nav-btn flex flex-col items-center justify-center flex-1 py-1 text-gray-500 dark:text-gray-400 hover:text-natura-orange transition group" data-target="mas">
+            <i class="fa-solid fa-bars text-lg group-hover:scale-110 transition"></i>
+            <span class="text-[10px] font-medium mt-1">Más</span>
+        </button>
+    </nav>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+    <!-- CORE APPLICATION LOGIC SCRIPT -->
+    <script>
+        // --- LOCAL STORAGE DATABASE STATE ---
+        const DB_KEY = 'NATURA_MANAGER_DB_V2';
+        
+        let db = {
+            settings: {
+                businessName: 'Mi Negocio Natura',
+                userName: 'Consultora Natura',
+                whatsapp: '5491123456789',
+                alias: 'natura.consultora.mp',
+                logoUrl: 'https://placehold.co/100x100/ff6600/ffffff?text=Natura',
+                thankYou: '¡Gracias por elegir Natura! Que disfrutes mucho tus productos 💕',
+                pin: '1234',
+                theme: 'light'
+            },
+            customers: [],
+            products: [],
+            sales: [],
+            orders: [],
+            payments: [],
+            expenses: [],
+            inventoryMovements: [],
+            messageTemplates: [
+                { id: 1, title: 'Recordatorio amable', text: 'Hola {nombre} 😊 ¿Cómo estás? Te escribo para recordarte que tenés pendiente un saldo de {deuda}. Cuando puedas, avisame así coordinamos el pago. ¡Gracias!' },
+                { id: 2, title: 'Vencimiento hoy', text: 'Hola {nombre} 😊 Te recuerdo que hoy vence el saldo pendiente de {deuda}. Cuando puedas, podés avisarme para coordinar el pago. ¡Muchas gracias!' },
+                { id: 3, title: 'Deuda vencida', text: 'Hola {nombre}, ¿cómo estás? 😊 Te escribo porque quedó pendiente un saldo de {deuda}, con vencimiento el {vencimiento}. Cuando puedas, avisame y coordinamos el pago. ¡Gracias!' },
+                { id: 4, title: 'Pago parcial', text: 'Hola {nombre} 😊 Registré tu pago de {pago}. Te queda un saldo pendiente de {saldo}. ¡Gracias!' },
+                { id: 5, title: 'Pedido listo', text: 'Hola {nombre} 😊 ¡Tu pedido ya está listo! Podés coordinar conmigo la entrega cuando quieras.' },
+                { id: 6, title: 'Pedido entregado', text: 'Hola {nombre} 😊 ¡Gracias por tu compra! Espero que disfrutes mucho tus productos 💕' },
+                { id: 7, title: 'Producto reservado disponible', text: 'Hola {nombre}, te quería avisar que ya tengo disponible tu producto reservado de Natura 😊' }
+            ],
+            notifications: []
+        };
+
+        // Load DB from LocalStorage
+        function loadDatabase() {
+            const saved = localStorage.getItem(DB_KEY);
+            if (saved) {
+                try {
+                    db = JSON.parse(saved);
+                } catch(e) {
+                    console.error('Error parsing DB', e);
+                }
+            } else {
+                // If clean DB, add sample data if requested or keep pristine
+                saveDatabase();
+            }
+            applyTheme(db.settings.theme || 'light');
+        }
+
+        function saveDatabase() {
+            localStorage.setItem(DB_KEY, JSON.stringify(db));
+            updateDashboard();
+            updateNotificationsBadge();
+        }
+
+        // --- AUTHENTICATION & PIN SECURITY ---
+        function initAuth() {
+            const authScreen = document.getElementById('authScreen');
+            const pinInputs = document.querySelectorAll('.pin-input');
+            
+            // If PIN is set, require login
+            authScreen.classList.remove('hidden');
+
+            pinInputs.forEach((input, index) => {
+                input.addEventListener('input', (e) => {
+                    const val = e.target.value;
+                    if (val && index < pinInputs.length - 1) {
+                        pinInputs[index + 1].focus();
+                    }
+                });
+                input.addEventListener('keydown', (e) => {
+                    if (e.key === 'Backspace' && !input.value && index > 0) {
+                        pinInputs[index - 1].focus();
+                    }
+                });
+            });
+        }
+
+        function verifyPin() {
+            const pinInputs = document.querySelectorAll('.pin-input');
+            let enteredPin = '';
+            pinInputs.forEach(inp => enteredPin += inp.value);
+
+            if (enteredPin === (db.settings.pin || '1234')) {
+                document.getElementById('authScreen').classList.add('hidden');
+                showToast('¡Bienvenida nuevamente!', 'success');
+                updateDashboard();
+            } else {
+                showToast('PIN incorrecto. Inténtalo nuevamente.', 'error');
+                pinInputs.forEach(inp => inp.value = '');
+                pinInputs[0].focus();
+            }
+        }
+
+        function toggleAuthMode() {
+            const newPin = prompt('Ingresa tu nuevo PIN de 4 dígitos:');
+            if (newPin && newPin.length === 4) {
+                db.settings.pin = newPin;
+                saveDatabase();
+                showToast('PIN actualizado con éxito. Ahora ingresa con tu nuevo PIN.', 'success');
+                const pinInputs = document.querySelectorAll('.pin-input');
+                pinInputs.forEach(inp => inp.value = '');
+                pinInputs[0].focus();
+            } else if (newPin) {
+                showToast('El PIN debe tener exactamente 4 dígitos.', 'error');
+            }
+        }
+
+        // --- NAVIGATION & TABS ---
+        function switchTab(tabId) {
+            document.querySelectorAll('.view-section').forEach(sec => sec.classList.add('hidden'));
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('text-natura-orange');
+                btn.classList.add('text-gray-500', 'dark:text-gray-400');
+            });
+
+            const targetSec = document.getElementById(`view-${tabId}`);
+            if (targetSec) targetSec.classList.remove('hidden');
+
+            const targetBtn = document.querySelector(`.nav-btn[data-target="${tabId}"]`);
+            if (targetBtn) {
+                targetBtn.classList.remove('text-gray-500', 'dark:text-gray-400');
+                targetBtn.classList.add('text-natura-orange');
+            }
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            // Refresh specific tab data
+            if (tabId === 'dashboard') updateDashboard();
+            if (tabId === 'clientes') renderClientsList();
+            if (tabId === 'ventas') renderSalesList();
+            if (tabId === 'stock') renderStockList();
+            if (tabId === 'deudas') renderDebtsList('all');
+            if (tabId === 'config') loadConfigForm();
+        }
+
+        // --- TOAST NOTIFICATIONS ---
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            
+            const bgCol = type === 'success' ? 'bg-emerald-600' : type === 'error' ? 'bg-rose-600' : 'bg-amber-600';
+            const icon = type === 'success' ? 'fa-circle-check' : type === 'error' ? 'fa-circle-exclamation' : 'fa-circle-info';
+
+            toast.className = `${bgCol} text-white px-4 py-3 rounded-2xl shadow-xl flex items-center gap-3 text-sm font-semibold pointer-events-auto transform translate-y-2 opacity-0 transition-all duration-300`;
+            toast.innerHTML = `<i class="fa-solid ${icon} text-lg"></i> <span>${message}</span>`;
+            
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.classList.remove('translate-y-2', 'opacity-0');
+            }, 10);
+
+            setTimeout(() => {
+                toast.classList.add('translate-y-2', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        }
+
+        // --- MODAL CONTROLLER ---
+        function openModal(htmlContent) {
+            const modal = document.getElementById('globalModal');
+            const content = document.getElementById('modalContent');
+            content.innerHTML = htmlContent;
+            modal.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('globalModal');
+            modal.classList.add('hidden');
+        }
+
+        // --- WHATSAPP NORMALIZATION & HELPER ---
+        function getCleanWhatsapp(rawNumber) {
+            if (!rawNumber) return '';
+            let cleaned = rawNumber.replace(/\D/g, '');
+            if (!cleaned.startsWith('54')) {
+                if (cleaned.startsWith('0')) cleaned = cleaned.substring(1);
+                if (!cleaned.startsWith('549') && !cleaned.startsWith('54')) {
+                    cleaned = '549' + cleaned;
+                } else if (cleaned.startsWith('54') && !cleaned.startsWith('549')) {
+                    cleaned = '549' + cleaned.substring(2);
+                }
+            }
+            return cleaned;
+        }
+
+        function openWhatsApp(phone, message) {
+            const cleanPhone = getCleanWhatsapp(phone);
+            const encodedMsg = encodeURIComponent(message || '');
+            const url = `https://wa.me/${cleanPhone}?text=${encodedMsg}`;
+            window.open(url, '_blank');
+            showToast('Abriendo WhatsApp con mensaje preparado...', 'success');
+        }
+
+        // --- DASHBOARD & FINANCIAL CALCULATIONS ---
+        function updateDashboard() {
+            document.getElementById('headerBusinessName').innerText = db.settings.businessName;
+            document.getElementById('headerUserName').innerText = db.settings.userName;
+            document.getElementById('dashWelcomeTitle').innerText = `¡Hola, ${db.settings.userName.split(' ')[0]}! ✨`;
+            document.getElementById('dashLogoImg').src = db.settings.logoUrl || 'https://placehold.co/100x100/ff6600/ffffff?text=N';
+
+            // Today date string YYYY-MM-DD
+            const todayStr = new Date().toISOString().split('T')[0];
+
+            let ventasHoy = 0;
+            let cobradoHoy = 0;
+
+            db.sales.forEach(s => {
+                if (s.date && s.date.startsWith(todayStr)) {
+                    ventasHoy += s.total;
+                }
+            });
+
+            db.payments.forEach(p => {
+                if (p.date && p.date.startsWith(todayStr)) {
+                    cobradoHoy += p.amount;
+                }
+            });
+
+            // Calculate pending receivables & debt categories
+            let totalPendiente = 0;
+            let countVencidos = 0;
+            let countHoy = 0;
+            let countProximos = 0;
+            let amountVencidos = 0;
+            let amountHoy = 0;
+            let amountProximos = 0;
+
+            const now = new Date();
+            now.setHours(0,0,0,0);
+
+            let receivablesListHtml = '';
+            let receivablesPreviewCount = 0;
+
+            db.customers.forEach(cust => {
+                const balance = getCustomerBalance(cust.id);
+                if (balance > 0) {
+                    totalPendiente += balance;
+                    const dueDateStr = getCustomerNextDueDate(cust.id);
+                    if (dueDateStr) {
+                        const dueDate = new Date(dueDateStr);
+                        dueDate.setHours(0,0,0,0);
+                        const diffDays = Math.ceil((dueDate - now) / (1000 * 60 * 60 * 24));
+
+                        if (diffDays < 0) {
+                            countVencidos++;
+                            amountVencidos += balance;
+                        } else if (diffDays === 0) {
+                            countHoy++;
+                            amountHoy += balance;
+                        } else {
+                            countProximos++;
+                            amountProximos += balance;
+                        }
+
+                        if (receivablesPreviewCount < 3) {
+                            receivablesListHtml += `
+                                <div class="bg-white dark:bg-gray-800 p-3.5 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex items-center justify-between">
+                                    <div>
+                                        <h4 class="font-bold text-gray-900 dark:text-white text-sm">${cust.name}</h4>
+                                        <p class="text-xs text-rose-600 dark:text-rose-400 font-medium">Deuda: $${balance.toLocaleString()} • Vence: ${dueDateStr} (${diffDays < 0 ? Math.abs(diffDays) + ' días atraso' : diffDays === 0 ? 'Hoy' : 'En ' + diffDays + ' días'})</p>
+                                    </div>
+                                    <div class="flex gap-2">
+                                        <button onclick="openWhatsAppModalForCustomer('${cust.id}')" class="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center hover:bg-emerald-200 transition"><i class="fa-brands fa-whatsapp"></i></button>
+                                        <button onclick="openRegisterPaymentModal('${cust.id}')" class="w-9 h-9 rounded-xl bg-orange-100 text-natura-orange flex items-center justify-center hover:bg-orange-200 transition"><i class="fa-solid fa-wallet"></i></button>
+                                    </div>
+                                </div>
+                            `;
+                            receivablesPreviewCount++;
+                        }
+                    }
+                }
+            });
+
+            // Stock low count
+            let stockBajoCount = 0;
+            db.products.forEach(p => {
+                if (p.stock <= p.minStock) stockBajoCount++;
+            });
+
+            // Update DOM
+            document.getElementById('dashVentasHoy').innerText = `$${ventasHoy.toLocaleString()}`;
+            document.getElementById('dashCobradoHoy').innerText = `$${cobradoHoy.toLocaleString()}`;
+            document.getElementById('dashPendienteHoy').innerText = `$${totalPendiente.toLocaleString()}`;
+            document.getElementById('dashStockBajo').innerText = stockBajoCount;
+
+            document.getElementById('dashTotalCobrarBadge').innerText = `$${totalPendiente.toLocaleString()}`;
+            document.getElementById('dashCountVencidos').innerText = `${countVencidos} vencidos ($${amountVencidos.toLocaleString()})`;
+            document.getElementById('dashCountHoy').innerText = `${countHoy} vencen hoy ($${amountHoy.toLocaleString()})`;
+            document.getElementById('dashCountProximos').innerText = `${countProximos} próximos ($${amountProximos.toLocaleString()})`;
+
+            document.getElementById('dashReceivablesList').innerHTML = receivablesListHtml || '<p class="text-xs text-gray-400 text-center py-4">No hay cuentas pendientes en este momento.</p>';
+            
+            checkInternalNotifications();
+        }
+
+        // --- FINANCIAL HELPERS PER CUSTOMER ---
+        function getCustomerBalance(customerId) {
+            let totalDebt = 0;
+            let totalPaid = 0;
+            db.sales.forEach(s => {
+                if (s.customerId === customerId && s.paymentMethod === 'Cuenta corriente') {
+                    totalDebt += s.total;
+                }
+            });
+            db.payments.forEach(p => {
+                if (p.customerId === customerId) {
+                    totalPaid += p.amount;
+                }
+            });
+            return Math.max(0, totalDebt - totalPaid);
+        }
+
+        function getCustomerNextDueDate(customerId) {
+            let latestDueDate = null;
+            db.sales.forEach(s => {
+                if (s.customerId === customerId && s.paymentMethod === 'Cuenta corriente' && s.dueDate) {
+                    if (!latestDueDate || s.dueDate > latestDueDate) {
+                        latestDueDate = s.dueDate;
+                    }
+                }
+            });
+            return latestDueDate;
+        }
+
+        // --- NOTIFICATIONS SYSTEM ---
+        function checkInternalNotifications() {
+            const notifs = [];
+            const now = new Date();
+            now.setHours(0,0,0,0);
+
+            // Check stock low
+            db.products.forEach(p => {
+                if (p.stock === 0) {
+                    notifs.push({ type: 'danger', title: 'Producto sin stock', desc: `${p.name} se encuentra agotado.` });
+                } else if (p.stock <= p.minStock) {
+                    notifs.push({ type: 'warning', title: 'Stock bajo', desc: `${p.name} tiene ${p.stock} unidades (mínimo ${p.minStock}).` });
+                }
+            });
+
+            // Check pending orders
+            db.orders.forEach(o => {
+                if (o.status === 'Pendiente') {
+                    notifs.push({ type: 'info', title: 'Pedido pendiente', desc: `Pedido #${o.id} de ${o.customerName} requiere atención.` });
+                } else if (o.status === 'Listo') {
+                    notifs.push({ type: 'success', title: 'Pedido listo', desc: `Pedido de ${o.customerName} está listo para entrega.` });
+                }
+            });
+
+            // Check overdue debts
+            db.customers.forEach(c => {
+                const bal = getCustomerBalance(c.id);
+                const due = getCustomerNextDueDate(c.id);
+                if (bal > 0 && due) {
+                    const dueDate = new Date(due);
+                    dueDate.setHours(0,0,0,0);
+                    if (dueDate < now) {
+                        notifs.push({ type: 'danger', title: 'Deuda vencida', desc: `${c.name} tiene deuda vencida por $${bal.toLocaleString()}.` });
+                    }
+                }
+            });
+
+            db.notifications = notifs;
+            updateNotificationsBadge();
+        }
+
+        function updateNotificationsBadge() {
+            const badge = document.getElementById('notifBadge');
+            if (badge) {
+                badge.innerText = db.notifications.length;
+            }
+        }
+
+        function openNotificationsModal() {
+            let html = `
+                <div class="p-4 bg-natura-orange text-white flex justify-between items-center">
+                    <h3 class="font-bold text-lg"><i class="fa-regular fa-bell"></i> Notificaciones y Alertas</h3>
+                    <button onclick="closeModal()" class="text-white hover:bg-white/20 p-2 rounded-xl"><i class="fa-solid fa-xmark text-lg"></i></button>
+                </div>
+                <div class="p-4 overflow-y-auto max-h-[60vh] space-y-3 bg-natura-cream dark:bg-gray-900">
+            `;
+
+            if (db.notifications.length === 0) {
+                html += `<p class="text-center text-gray-500 py-8 text-sm">No hay notificaciones pendientes. ¡Todo en orden! ✨</p>`;
+            } else {
+                db.notifications.forEach(n => {
+                    let bgCol = n.type === 'danger' ? 'bg-orange-500/20 border-orange-500/40 text-black dark:text-black' : n.type === 'warning' ? 'bg-amber-500/20 border-amber-500/40 text-black dark:text-black' : 'bg-blue-500/20 border-blue-500/40 text-black dark:text-black';
+                    html += `
+                        <div class="${bgCol} border backdrop-blur-md p-4 rounded-2xl shadow-sm flex items-start gap-3">
+                            <div class="w-8 h-8 rounded-xl bg-natura-orange text-white flex items-center justify-center shrink-0 font-bold">
+                                <i class="fa-solid fa-bell"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-sm text-gray-900 dark:text-white">${n.title}</h4>
+                                <p class="text-xs text-gray-700 dark:text-gray-300 mt-0.5">${n.desc}</p>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            html += `</div>
+                <div class="p-4 bg-white dark:bg-gray-800 border-t border-gray-100 dark:border-gray-700 flex justify-end">
+                    <button onclick="closeModal()" class="px-5 py-2.5 bg-natura-orange text-white font-semibold rounded-xl text-sm">Cerrar</button>
+                </div>
+            `;
+            openModal(html);
+        }
+
+        // --- CLIENTS MODULE LOGIC ---
+        function renderClientsList() {
+            const container = document.getElementById('clientsContainer');
+            const search = document.getElementById('clientSearchInput').value.toLowerCase();
+            const filter = document.getElementById('clientFilterSelect').value;
+
+            let html = '';
+            let filtered = db.customers.filter(c => {
+                const matchSearch = c.name.toLowerCase().includes(search) || (c.phone && c.phone.includes(search)) || (c.city && c.city.toLowerCase().includes(search));
+                const balance = getCustomerBalance(c.id);
+                if (filter === 'active') return matchSearch && c.status === 'Activo';
+                if (filter === 'debt') return matchSearch && balance > 0;
+                return matchSearch;
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = `<div class="col-span-full text-center py-12 text-gray-400 text-sm">No se encontraron clientes.</div>`;
+                return;
+            }
+
+            filtered.forEach(c => {
+                const balance = getCustomerBalance(c.id);
+                const nextDue = getCustomerNextDueDate(c.id);
+                html += `
+                    <div class="bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col justify-between gap-3">
+                        <div class="flex items-start justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-12 h-12 rounded-2xl bg-orange-100 dark:bg-orange-950/50 text-natura-orange font-bold text-lg flex items-center justify-center overflow-hidden shrink-0">
+                                    ${c.photo ? `<img src="${c.photo}" class="w-full h-full object-cover">` : c.name.substring(0,2).toUpperCase()}
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-gray-900 dark:text-white text-base">${c.name}</h3>
+                                    <p class="text-xs text-gray-500">${c.city || 'Sin localidad'} • <span class="${c.status === 'Activo' ? 'text-emerald-600' : 'text-gray-400'} font-semibold">${c.status}</span></p>
+                                </div>
+                            </div>
+                            <span class="px-2.5 py-1 rounded-full text-xs font-bold ${balance > 0 ? 'bg-rose-100 text-rose-700 dark:bg-rose-950/50 dark:text-rose-300' : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300'}">
+                                Deuda: $${balance.toLocaleString()}
+                            </span>
+                        </div>
+
+                        <div class="flex items-center gap-2 pt-2 border-t border-gray-100 dark:border-gray-700 text-xs">
+                            <button onclick="openClientDetail('${c.id}')" class="flex-1 py-2 bg-natura-sageLight dark:bg-gray-700 hover:bg-natura-sage/30 text-gray-800 dark:text-gray-200 font-semibold rounded-xl transition flex items-center justify-center gap-1.5">
+                                <i class="fa-solid fa-eye"></i> Ficha y Cuenta
+                            </button>
+                            <button onclick="openWhatsAppModalForCustomer('${c.id}')" class="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center hover:bg-emerald-200 transition" title="WhatsApp">
+                                <i class="fa-brands fa-whatsapp text-base"></i>
+                            </button>
+                            <button onclick="openRegisterPaymentModal('${c.id}')" class="w-9 h-9 rounded-xl bg-orange-100 text-natura-orange flex items-center justify-center hover:bg-orange-200 transition" title="Registrar Pago">
+                                <i class="fa-solid fa-wallet text-sm"></i>
+                            </button>
+                            <button onclick="confirmDeleteClient('${c.id}')" class="w-9 h-9 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center hover:bg-rose-100 transition" title="Eliminar">
+                                <i class="fa-solid fa-trash text-sm"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function openNewClientModal(editId = null) {
+            let client = { name: '', whatsapp: '', phone: '', address: '', city: '', email: '', notes: '', status: 'Activo' };
+            if (editId) {
+                client = db.customers.find(c => c.id === editId) || client;
+            }
+
+            let html = `
+                <div class="p-4 bg-natura-orange text-white flex justify-between items-center">
+                    <h3 class="font-bold text-lg"><i class="fa-solid fa-user-plus"></i> ${editId ? 'Editar Cliente' : 'Nuevo Cliente Natura'}</h3>
+                    <button onclick="closeModal()" class="text-white hover:bg-white/20 p-2 rounded-xl"><i class="fa-solid fa-xmark text-lg"></i></button>
+                </div>
+                <div class="p-4 overflow-y-auto max-h-[70vh] space-y-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">Nombre y Apellido *</label>
+                        <input type="text" id="modalClientName" value="${client.name}" class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-sm focus:border-natura-orange focus:outline-none">
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">WhatsApp (con característica) *</label>
+                            <input type="text" id="modalClientWhatsapp" value="${client.whatsapp}" placeholder="1123456789" class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-sm focus:border-natura-orange focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">Teléfono Alternativo</label>
+                            <input type="text" id="modalClientPhone" value="${client.phone || ''}" class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-sm focus:border-natura-orange focus:outline-none">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">Dirección</label>
+                            <input type="text" id="modalClientAddress" value="${client.address || ''}" class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-sm focus:border-natura-orange focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">Localidad</label>
+                            <input type="text" id="modalClientCity" value="${client.city || ''}" class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-sm focus:border-natura-orange focus:outline-none">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">Email</label>
+                            <input type="email" id="modalClientEmail" value="${client.email || ''}" class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-sm focus:border-natura-orange focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">Estado</label>
+                            <select id="modalClientStatus" class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-sm focus:border-natura-orange focus:outline-none font-medium">
+                                <option value="Activo" ${client.status === 'Activo' ? 'selected' : ''}>Activo</option>
+                                <option value="Inactivo" ${client.status === 'Inactivo' ? 'selected' : ''}>Inactivo</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">Notas y Preferencias</label>
+                        <textarea id="modalClientNotes" rows="2" class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-sm focus:border-natura-orange focus:outline-none">${client.notes || ''}</textarea>
+                    </div>
+                </div>
+                <div class="p-4 bg-white dark:bg-gray-800 border-t border-gray-100 dark:border-gray-700 flex justify-end gap-2">
+                    <button onclick="closeModal()" class="px-4 py-2.5 bg-gray-200 dark:bg-gray-700 rounded-xl text-xs font-semibold hover:bg-gray-300 transition">Cancelar</button>
+                    <button onclick="saveClient('${editId || ''}')" class="px-6 py-2.5 bg-natura-orange text-white font-semibold rounded-xl text-sm shadow-md">Guardar Cliente</button>
+                </div>
+            `;
+            openModal(html);
+        }
+
+        function saveClient(editId) {
+            const name = document.getElementById('modalClientName').value.trim();
+            const whatsapp = document.getElementById('modalClientWhatsapp').value.trim();
+            const phone = document.getElementById('modalClientPhone').value.trim();
+            const address = document.getElementById('modalClientAddress').value.trim();
+            const city = document.getElementById('modalClientCity').value.trim();
+            const email = document.getElementById('modalClientEmail').value.trim();
+            const status = document.getElementById('modalClientStatus').value;
+            const notes = document.getElementById('modalClientNotes').value.trim();
+
+            if (!name || !whatsapp) {
+                showToast('Por favor completa el nombre y el WhatsApp del cliente.', 'error');
+                return;
+            }
+
+            if (editId) {
+                const idx = db.customers.findIndex(c => c.id === editId);
+                if (idx !== -1) {
+                    db.customers[idx] = { ...db.customers[idx], name, whatsapp, phone, address, city, email, status, notes, updated_at: new Date().toISOString() };
+                }
+                showToast('Cliente actualizado con éxito.', 'success');
+            } else {
+                const newClient = {
+                    id: 'CUST_' + Date.now(),
+                    name, whatsapp, phone, address, city, email, status, notes,
+                    created_at: new Date().toISOString()
+                };
+                db.customers.push(newClient);
+                showToast('Cliente registrado con éxito.', 'success');
+            }
+
+            saveDatabase();
+            closeModal();
+            renderClientsList();
+        }
+
+        function confirmDeleteClient(id) {
+            if (confirm('¿Estás segura de que deseas eliminar este cliente? Esta acción no se puede deshacer.')) {
+                db.customers = db.customers.filter(c => c.id !== id);
+                saveDatabase();
+                showToast('Cliente eliminado correctamente.', 'success');
+                renderClientsList();
+            }
+        }
+
+        function openClientDetail(customerId) {
+            const c = db.customers.find(cust => cust.id === customerId);
+            if (!c) return;
+
+            const balance = getCustomerBalance(c.id);
+            const nextDue = getCustomerNextDueDate(c.id);
+
+            // Get purchases
+            let purchasesHtml = '';
+            db.sales.filter(s => s.customerId === c.id).forEach(s => {
+                purchasesHtml += `
+                    <div class="bg-gray-50 dark:bg-gray-900 p-3 rounded-xl border border-gray-100 dark:border-gray-700 flex justify-between items-center text-xs">
+                        <div>
+                            <span class="font-bold text-gray-900 dark:text-white">Venta #${s.id.substring(s.id.length-6)}</span>
+                            <p class="text-gray-500">${s.date} • ${s.paymentMethod}</p>
+                        </div>
+                        <div class="text-right">
+                            <span class="font-bold text-natura-orange">$${s.total.toLocaleString()}</span>
+                            <p class="text-[10px] text-gray-500">${s.status || 'Completada'}</p>
+                        </div>
+                    </div>
+                `;
+            });
+
+            // Get payments
+            let paymentsHtml = '';
+            db.payments.filter(p => p.customerId === c.id).forEach(p => {
+                paymentsHtml += `
+                    <div class="bg-gray-50 dark:bg-gray-900 p-3 rounded-xl border border-gray-100 dark:border-gray-700 flex justify-between items-center text-xs">
+                        <div>
+                            <span class="font-bold text-emerald-600">Pago: $${p.amount.toLocaleString()}</span>
+                            <p class="text-gray-500">${p.date} • ${p.method}</p>
+                        </div>
+                        <span class="text-gray-500 text-[10px]">${p.notes || ''}</span>
+                    </div>
+                `;
+            });
+
+            let html = `
+                <div class="p-4 bg-natura-orange text-white flex justify-between items-center">
+                    <h3 class="font-bold text-lg"><i class="fa-solid fa-user"></i> Ficha: ${c.name}</h3>
+                    <button onclick="closeModal()" class="text-white hover:bg-white/20 p-2 rounded-xl"><i class="fa-solid fa-xmark text-lg"></i></button>
+                </div>
+                <div class="p-4 overflow-y-auto max-h-[75vh] space-y-4">
+                    <!-- Summary Card -->
+                    <div class="bg-natura-sageLight dark:bg-gray-700/50 p-4 rounded-2xl flex justify-between items-center">
+                        <div>
+                            <span class="text-xs text-gray-600 dark:text-gray-300 font-semibold">Saldo Pendiente Cuenta Corriente</span>
+                            <h2 class="text-2xl font-bold text-gray-900 dark:text-white mt-0.5">$${balance.toLocaleString()}</h2>
+                            <p class="text-[11px] text-gray-500">Próximo vencimiento: ${nextDue || 'Sin vencimientos'}</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="openWhatsAppModalForCustomer('${c.id}')" class="px-3 py-2 bg-emerald-600 text-white font-semibold rounded-xl text-xs flex items-center gap-1 shadow"><i class="fa-brands fa-whatsapp"></i> WhatsApp</button>
+                            <button onclick="openRegisterPaymentModal('${c.id}')" class="px-3 py-2 bg-natura-orange text-white font-semibold rounded-xl text-xs flex items-center gap-1 shadow"><i class="fa-solid fa-wallet"></i> Cobrar</button>
+                        </div>
+                    </div>
+
+                    <!-- Details info -->
+                    <div class="grid grid-cols-2 gap-2 text-xs bg-gray-50 dark:bg-gray-900 p-3 rounded-xl border border-gray-100 dark:border-gray-700">
+                        <div><span class="text-gray-400">WhatsApp:</span> <span class="font-semibold text-gray-800 dark:text-gray-200">${c.whatsapp}</span></div>
+                        <div><span class="text-gray-400">Localidad:</span> <span class="font-semibold text-gray-800 dark:text-gray-200">${c.city || '-'}</span></div>
+                        <div class="col-span-2"><span class="text-gray-400">Dirección:</span> <span class="font-semibold text-gray-800 dark:text-gray-200">${c.address || '-'}</span></div>
+                        <div class="col-span-2"><span class="text-gray-400">Notas:</span> <span class="font-semibold text-gray-800 dark:text-gray-200">${c.notes || 'Ninguna'}</span></div>
+                    </div>
+
+                    <!-- Action buttons row -->
+                    <div class="flex gap-2">
+                        <button onclick="openNewClientModal('${c.id}')" class="flex-1 py-2 bg-gray-200 dark:bg-gray-700 font-semibold rounded-xl text-xs flex items-center justify-center gap-1"><i class="fa-solid fa-pen"></i> Editar</button>
+                        <button onclick="generateCustomerStatementPDF('${c.id}')" class="flex-1 py-2 bg-blue-600 text-white font-semibold rounded-xl text-xs flex items-center justify-center gap-1"><i class="fa-solid fa-file-pdf"></i> Estado Cuenta PDF</button>
+                    </div>
+
+                    <!-- Purchases History -->
+                    <div>
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">Historial de Compras y Ventas</h4>
+                        <div class="space-y-2 max-h-40 overflow-y-auto">
+                            ${purchasesHtml || '<p class="text-xs text-gray-400">Sin compras registradas.</p>'}
+                        </div>
+                    </div>
+
+                    <!-- Payments History -->
+                    <div>
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">Pagos Realizados</h4>
+                        <div class="space-y-2 max-h-40 overflow-y-auto">
+                            ${paymentsHtml || '<p class="text-xs text-gray-400">Sin pagos registrados.</p>'}
+                        </div>
+                    </div>
+                </div>
+                <div class="p-4 bg-white dark:bg-gray-800 border-t border-gray-100 dark:border-gray-700 flex justify-end">
+                    <button onclick="closeModal()" class="px-5 py-2.5 bg-natura-orange text-white font-semibold rounded-xl text-sm">Cerrar</button>
+                </div>
+            `;
+            openModal(html);
+        }
+
+        // --- PRODUCTS & STOCK MODULE LOGIC ---
+        function renderStockList() {
+            const container = document.getElementById('stockContainer');
+            const search = document.getElementById('stockSearchInput').value.toLowerCase();
+            const category = document.getElementById('stockCategoryFilter').value;
+
+            let filtered = db.products.filter(p => {
+                const matchSearch = p.name.toLowerCase().includes(search) || (p.code && p.code.toLowerCase().includes(search)) || (p.line && p.line.toLowerCase().includes(search));
+                const matchCat = category === 'all' || p.category === category;
+                return matchSearch && matchCat;
+            });
+
+            // Check low stock banner
+            let lowStockCount = 0;
+            db.products.forEach(p => { if (p.stock <= p.minStock) lowStockCount++; });
+            const banner = document.getElementById('lowStockAlertBanner');
+            if (lowStockCount > 0) banner.classList.remove('hidden');
+            else banner.classList.add('hidden');
+
+            if (filtered.length === 0) {
+                container.innerHTML = `<div class="col-span-full text-center py-12 text-gray-400 text-sm">No se encontraron productos en el inventario.</div>`;
+                return;
+            }
+
+            let html = '';
+            filtered.forEach(p => {
+                let statusBadge = '';
+                let statusColor = '';
+                if (p.stock === 0) {
+                    statusBadge = '🔴 Sin stock';
+                    statusColor = 'bg-rose-100 text-rose-700 dark:bg-rose-950/50 dark:text-rose-300';
+                } else if (p.stock <= p.minStock) {
+                    statusBadge = '🟡 Stock bajo';
+                    statusColor = 'bg-amber-100 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300';
+                } else {
+                    statusBadge = '🟢 Stock normal';
+                    statusColor = 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300';
+                }
+
+                html += `
+                    <div class="bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col justify-between gap-3">
+                        <div class="flex items-start justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-12 h-12 rounded-2xl bg-orange-100 dark:bg-orange-950/50 text-natura-orange flex items-center justify-center font-bold text-lg overflow-hidden shrink-0">
+                                    ${p.image ? `<img src="${p.image}" class="w-full h-full object-cover">` : '<i class="fa-solid fa-bottle-droplet"></i>'}
+                                </div>
+                                <div>
+                                    <span class="text-[10px] font-bold text-natura-orange uppercase tracking-wider">${p.category} • ${p.line || 'Natura'}</span>
+                                    <h3 class="font-bold text-gray-900 dark:text-white text-base leading-tight">${p.name}</h3>
+                                    <p class="text-xs text-gray-500">Código: ${p.code || 'S/C'}</p>
+                                </div>
+                            </div>
+                            <span class="px-2.5 py-1 rounded-full text-xs font-bold ${statusColor}">
+                                ${statusBadge}
+                            </span>
+                        </div>
+
+                        <div class="grid grid-cols-3 gap-2 bg-gray-50 dark:bg-gray-900 p-2.5 rounded-xl text-center text-xs">
+                            <div>
+                                <span class="text-gray-400 block text-[10px]">Costo</span>
+                                <span class="font-bold text-gray-700 dark:text-gray-300">$${p.buyPrice.toLocaleString()}</span>
+                            </div>
+                            <div>
+                                <span class="text-gray-400 block text-[10px]">Venta</span>
+                                <span class="font-bold text-natura-orange">$${p.sellPrice.toLocaleString()}</span>
+                            </div>
+                            <div>
+                                <span class="text-gray-400 block text-[10px]">Stock Actual</span>
+                                <span class="font-bold text-gray-900 dark:text-white">${p.stock} un. (Mín: ${p.minStock})</span>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-2 pt-1">
+                            <button onclick="openNewProductModal('${p.id}')" class="flex-1 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 font-semibold text-xs rounded-xl transition flex items-center justify-center gap-1">
+                                <i class="fa-solid fa-pen"></i> Editar
+                            </button>
+                            <button onclick="duplicateProduct('${p.id}')" class="py-2 px-3 bg-blue-50 text-blue-600 hover:bg-blue-100 font-semibold text-xs rounded-xl transition" title="Duplicar">
+                                <i class="fa-solid fa-copy"></i>
+                            </button>
+                            <button onclick="confirmDeleteProduct('${p.id}')" class="py-2 px-3 bg-rose-50 text-rose-600 hover:bg-rose-100 font-semibold text-xs rounded-xl transition" title="Eliminar">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function filterStockLow() {
+            document.getElementById('stockSearchInput').value = '';
+            const container = document.getElementById('stockContainer');
+            let filtered = db.products.filter(p => p.stock <= p.minStock);
+            
+            let html = '';
+            filtered.forEach(p => {
+                html += `
+                    <div class="bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm border border-amber-300 dark:border-amber-700 flex flex-col justify-between gap-3">
+                        <div class="flex items-center justify-between">
+                            <h3 class="font-bold text-gray-900 dark:text-white text-base">${p.name}</h3>
+                            <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-700">Stock: ${p.stock} (Mín: ${p.minStock})</span>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="openNewProductModal('${p.id}')" class="flex-1 py-2 bg-natura-orange text-white font-semibold text-xs rounded-xl">Editar / Reponer Stock</button>
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html || '<p class="text-xs text-center py-6">No hay productos con stock bajo en este filtro.</p>';
+        }
+
+        function openNewProductModal(editId = null) {
+            let prod = { code: '', name: '', category: 'Perfumería', line: 'Ekos', description: '', image: '', buyPrice: 0, sellPrice: 0, stock: 10, minStock: 2, supplier: 'Natura', notes: '' };
+            if (editId) {
+                prod = db.products.find(p => p.id === editId) || prod;
+            }
+
+            let html = `
+                <div class="p-4 bg-natura-orange text-white flex justify-between items-center">
+                    <h3 class="font-bold text-lg"><i class="fa-solid fa-box-open"></i> ${editId ? 'Editar Producto' : 'Nuevo Producto Natura'}</h3>
+                    <button onclick="closeModal()" class="text-white hover:bg-white/20 p-2 rounded-xl"><i class="fa-solid fa-xmark text-lg"></i></button>
+                </div>
+                <div class="p-4 overflow-y-auto max-h-[75vh] space-y-3">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">Código</label>
+                            <input type="text" id="modalProdCode" value="${prod.code}" class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-sm focus:border-natura-orange focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">Nombre del Producto *</label>
+                            <input type="text" id="modalProdName" value="${prod.name}" class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-sm focus:border-natura-orange focus:outline-none">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">Categoría</label>
+                            <select id="modalProdCategory" class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-sm focus:border-natura-orange focus:outline-none font-medium">
+                                <option value="Perfumería" ${prod.category === 'Perfumería' ? 'selected' : ''}>Perfumería</option>
+                                <option value="Cuidado corporal" ${prod.category === 'Cuidado corporal' ? 'selected' : ''}>Cuidado corporal</option>
+                                <option value="Rostro" ${prod.category === 'Rostro' ? 'selected' : ''}>Rostro</option>
+                                <option value="Cabello" ${prod.category === 'Cabello' ? 'selected' : ''}>Cabello</option>
+                                <option value="Maquillaje" ${prod.category === 'Maquillaje' ? 'selected' : ''}>Maquillaje</option>
+                                <option value="Higiene" ${prod.category === 'Higiene' ? 'selected' : ''}>Higiene</option>
+                                <option value="Kits" ${prod.category === 'Kits' ? 'selected' : ''}>Kits</option>
+                                <option value="Promociones" ${prod.category === 'Promociones' ? 'selected' : ''}>Promociones</option>
+                                <option value="Otros" ${prod.category === 'Otros' ? 'selected' : ''}>Otros</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">Línea (Ej: Ekos, Chronos, Tododia)</label>
+                            <input type="text" id="modalProdLine" value="${prod.line}" class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-sm focus:border-natura-orange focus:outline-none">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">Precio Compra ($)</label>
+                            <input type="number" id="modalProdBuy" value="${prod.buyPrice}" oninput="calcProductProfit()" class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-sm focus:border-natura-orange focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">Precio Venta ($)</label>
+                            <input type="number" id="modalProdSell" value="${prod.sellPrice}" oninput="calcProductProfit()" class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-sm focus:border-natura-orange focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">Ganancia Estimada</label>
+                            <div id="modalProdProfitPreview" class="px-3.5 py-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 font-bold text-sm flex items-center">
+                                $${(prod.sellPrice - prod.buyPrice).toLocaleString()}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">Stock Actual</label>
+                            <input type="number" id="modalProdStock" value="${prod.stock}" class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-sm focus:border-natura-orange focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">Stock Mínimo (Alerta)</label>
+                            <input type="number" id="modalProdMinStock" value="${prod.minStock}" class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-sm focus:border-natura-orange focus:outline-none">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">URL de Imagen (Opcional)</label>
+                        <input type="text" id="modalProdImage" value="${prod.image || ''}" class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-sm focus:border-natura-orange focus:outline-none" placeholder="https://...">
+                    </div>
+                </div>
+                <div class="p-4 bg-white dark:bg-gray-800 border-t border-gray-100 dark:border-gray-700 flex justify-end gap-2">
+                    <button onclick="closeModal()" class="px-4 py-2.5 bg-gray-200 dark:bg-gray-700 rounded-xl text-xs font-semibold hover:bg-gray-300">Cancelar</button>
+                    <button onclick="saveProduct('${editId || ''}')" class="px-6 py-2.5 bg-natura-orange text-white font-semibold rounded-xl text-sm shadow-md">Guardar Producto</button>
+                </div>
+            `;
+            openModal(html);
+        }
+
+        function calcProductProfit() {
+            const buy = parseFloat(document.getElementById('modalProdBuy').value) || 0;
+            const sell = parseFloat(document.getElementById('modalProdSell').value) || 0;
+            const profit = sell - buy;
+            document.getElementById('modalProdProfitPreview').innerText = `$${profit.toLocaleString()}`;
+        }
+
+        function saveProduct(editId) {
+            const code = document.getElementById('modalProdCode').value.trim();
+            const name = document.getElementById('modalProdName').value.trim();
+            const category = document.getElementById('modalProdCategory').value;
+            const line = document.getElementById('modalProdLine').value.trim();
+            const buyPrice = parseFloat(document.getElementById('modalProdBuy').value) || 0;
+            const sellPrice = parseFloat(document.getElementById('modalProdSell').value) || 0;
+            const stock = parseInt(document.getElementById('modalProdStock').value) || 0;
+            const minStock = parseInt(document.getElementById('modalProdMinStock').value) || 0;
+            const image = document.getElementById('modalProdImage').value.trim();
+
+            if (!name) {
+                showToast('Por favor ingresa el nombre del producto.', 'error');
+                return;
+            }
+
+            if (editId) {
+                const idx = db.products.findIndex(p => p.id === editId);
+                if (idx !== -1) {
+                    const oldStock = db.products[idx].stock;
+                    const diff = stock - oldStock;
+                    db.products[idx] = { ...db.products[idx], code, name, category, line, buyPrice, sellPrice, stock, minStock, image, updated_at: new Date().toISOString() };
+                    
+                    if (diff !== 0) {
+                        db.inventoryMovements.push({
+                            id: 'MOV_' + Date.now(),
+                            productId: editId,
+                            productName: name,
+                            type: diff > 0 ? 'Ajuste positivo' : 'Ajuste negativo',
+                            qty: Math.abs(diff),
+                            date: new Date().toISOString().split('T')[0],
+                            reason: 'Actualización manual de stock'
+                        });
+                    }
+                }
+                showToast('Producto actualizado correctamente.', 'success');
+            } else {
+                const newProdId = 'PROD_' + Date.now();
+                db.products.push({
+                    id: newProdId,
+                    code, name, category, line, buyPrice, sellPrice, stock, minStock, image,
+                    created_at: new Date().toISOString()
+                });
+                if (stock > 0) {
+                    db.inventoryMovements.push({
+                        id: 'MOV_' + Date.now(),
+                        productId: newProdId,
+                        productName: name,
+                        type: 'Compra inicial',
+                        qty: stock,
+                        date: new Date().toISOString().split('T')[0],
+                        reason: 'Alta de producto'
+                    });
+                }
+                showToast('Producto creado con éxito.', 'success');
+            }
+
+            saveDatabase();
+            closeModal();
+            renderStockList();
+        }
+
+        function duplicateProduct(id) {
+            const p = db.products.find(prod => prod.id === id);
+            if (!p) return;
+            const duplicated = {
+                ...p,
+                id: 'PROD_' + Date.now(),
+                name: p.name + ' (Copia)',
+                code: p.code ? p.code + '-DUP' : '',
+                created_at: new Date().toISOString()
+            };
+            db.products.push(duplicated);
+            saveDatabase();
+            showToast('Producto duplicado con éxito.', 'success');
+            renderStockList();
+        }
+
+        function confirmDeleteProduct(id) {
+            if (confirm('¿Estás segura de eliminar este producto del inventario?')) {
+                db.products = db.products.filter(p => p.id !== id);
+                saveDatabase();
+                showToast('Producto eliminado correctamente.', 'success');
+                renderStockList();
+            }
+        }
+
+        function openStockMovementsModal() {
+            let html = `
+                <div class="p-4 bg-natura-orange text-white flex justify-between items-center">
+                    <h3 class="font-bold text-lg"><i class="fa-solid fa-clock-rotate-left"></i> Historial de Movimientos de Stock</h3>
+                    <button onclick="closeModal()" class="text-white hover:bg-white/20 p-2 rounded-xl"><i class="fa-solid fa-xmark text-lg"></i></button>
+                </div>
+                <div class="p-4 overflow-y-auto max-h-[65vh] space-y-2">
+            `;
+
+            if (db.inventoryMovements.length === 0) {
+                html += `<p class="text-center text-gray-400 py-8 text-sm">No hay movimientos de stock registrados.</p>`;
+            } else {
+                db.inventoryMovements.slice().reverse().forEach(m => {
+                    html += `
+                        <div class="bg-gray-50 dark:bg-gray-900 p-3 rounded-xl border border-gray-100 dark:border-gray-700 flex justify-between items-center text-xs">
+                            <div>
+                                <span class="font-bold text-gray-900 dark:text-white">${m.productName}</span>
+                                <p class="text-gray-500">${m.date} • <span class="font-semibold text-natura-orange">${m.type}</span> (${m.reason || ''})</p>
+                            </div>
+                            <span class="font-bold text-base ${m.type.includes('Ajuste positivo') || m.type.includes('Compra') ? 'text-emerald-600' : 'text-rose-600'}">
+                                ${m.type.includes('Ajuste positivo') || m.type.includes('Compra') ? '+' : '-'}${m.qty}
+                            </span>
+                        </div>
+                    `;
+                });
+            }
+
+            html += `</div>
+                <div class="p-4 bg-white dark:bg-gray-800 border-t border-gray-100 dark:border-gray-700 flex justify-end">
+                    <button onclick="closeModal()" class="px-5 py-2.5 bg-natura-orange text-white font-semibold rounded-xl text-sm">Cerrar</button>
+                </div>
+            `;
+            openModal(html);
+        }
+
+        // --- NEW SALE / POS WIZARD FLOW ---
+        let currentSaleCart = [];
+        let selectedSaleCustomerId = '';
+
+        function openNewSaleModal() {
+            currentSaleCart = [];
+            selectedSaleCustomerId = db.customers[0]?.id || '';
+
+            renderNewSaleWizard();
+        }
+
+        function renderNewSaleWizard() {
+            let customerOptions = db.customers.map(c => `<option value="${c.id}" ${selectedSaleCustomerId === c.id ? 'selected' : ''}>${c.name} (${c.city || 'Sin localidad'})</option>`).join('');
+
+            let cartHtml = '';
+            let cartTotal = 0;
+            currentSaleCart.forEach((item, index) => {
+                const sub = item.price * item.qty;
+                cartTotal += sub;
+                cartHtml += `
+                    <div class="flex items-center justify-between bg-gray-50 dark:bg-gray-900 p-3 rounded-xl border border-gray-100 dark:border-gray-700 text-xs">
+                        <div>
+                            <span class="font-bold text-gray-900 dark:text-white">${item.name}</span>
+                            <p class="text-gray-500">$${item.price.toLocaleString()} c/u</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold">x${item.qty}</span>
+                            <span class="font-bold text-natura-orange">$${sub.toLocaleString()}</span>
+                            <button onclick="removeFromSaleCart(${index})" class="text-rose-500 hover:text-rose-700 p-1"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            let productOptions = db.products.map(p => `<option value="${p.id}">${p.name} - Stock: ${p.stock} ($${p.sellPrice})</option>`).join('');
+
+            let html = `
+                <div class="p-4 bg-natura-orange text-white flex justify-between items-center">
+                    <h3 class="font-bold text-lg"><i class="fa-solid fa-bag-shopping"></i> Registrar Nueva Venta / Presupuesto</h3>
+                    <button onclick="closeModal()" class="text-white hover:bg-white/20 p-2 rounded-xl"><i class="fa-solid fa-xmark text-lg"></i></button>
+                </div>
+                <div class="p-4 overflow-y-auto max-h-[75vh] space-y-4">
+                    <!-- Step 1: Client -->
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">Seleccionar Cliente *</label>
+                        <select id="saleCustomerId" onchange="selectedSaleCustomerId=this.value" class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-sm focus:border-natura-orange focus:outline-none font-medium">
+                            ${customerOptions || '<option value="">No hay clientes registrados</option>'}
+                        </select>
+                    </div>
+
+                    <!-- Step 2: Add Products -->
+                    <div class="bg-natura-sageLight dark:bg-gray-700/40 p-3.5 rounded-2xl space-y-3">
+                        <label class="block text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider">Agregar Productos al Carrito</label>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                            <div class="sm:col-span-2">
+                                <select id="saleProductId" class="w-full px-3.5 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-xs focus:border-natura-orange focus:outline-none">
+                                    ${productOptions || '<option value="">No hay productos</option>'}
+                                </select>
+                            </div>
+                            <div class="flex gap-2">
+                                <input type="number" id="saleProductQty" value="1" min="1" class="w-16 px-2 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-xs text-center font-bold">
+                                <button onclick="addToSaleCart()" class="flex-1 bg-natura-orange text-white font-semibold text-xs rounded-xl shadow py-2">Agregar</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cart items list -->
+                    <div class="space-y-2">
+                        <h4 class="text-xs font-bold text-gray-500 uppercase">Productos en la Venta</h4>
+                        <div class="space-y-2 max-h-36 overflow-y-auto">
+                            ${cartHtml || '<p class="text-xs text-gray-400 text-center py-2">El carrito está vacío.</p>'}
+                        </div>
+                    </div>
+
+                    <!-- Total & Payment settings -->
+                    <div class="bg-gray-50 dark:bg-gray-900 p-4 rounded-2xl space-y-3 border border-gray-100 dark:border-gray-700">
+                        <div class="flex justify-between items-center text-base font-bold">
+                            <span>Total Venta:</span>
+                            <span class="text-natura-orange text-xl" id="saleCartTotalDisplay">$${cartTotal.toLocaleString()}</span>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">Forma de Pago</label>
+                                <select id="salePaymentMethod" onchange="toggleDueDateField(this.value)" class="w-full px-3.5 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-xs font-medium focus:border-natura-orange">
+                                    <option value="Efectivo">Efectivo</option>
+                                    <option value="Transferencia">Transferencia</option>
+                                    <option value="Mercado Pago">Mercado Pago</option>
+                                    <option value="Cuenta corriente">Cuenta corriente (Deuda)</option>
+                                </select>
+                            </div>
+                            <div id="dueDateContainer" class="hidden">
+                                <label class="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">Fecha de Vencimiento</label>
+                                <input type="date" id="saleDueDate" class="w-full px-3.5 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-xs font-medium">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-4 bg-white dark:bg-gray-800 border-t border-gray-100 dark:border-gray-700 flex justify-end gap-2">
+                    <button onclick="generatePresupuestoPDF()" class="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-xs flex items-center gap-1 shadow"><i class="fa-solid fa-file-pdf"></i> Generar Presupuesto PDF</button>
+                    <button onclick="finalizeSale()" class="px-6 py-2.5 bg-natura-orange hover:bg-natura-orangeDark text-white font-semibold rounded-xl text-sm shadow-md">Guardar Venta</button>
+                </div>
+            `;
+            openModal(html);
+        }
+
+        function toggleDueDateField(val) {
+            const container = document.getElementById('dueDateContainer');
+            if (val === 'Cuenta corriente') {
+                container.classList.remove('hidden');
+                // default due date 15 days from now
+                const d = new Date();
+                d.setDate(d.getDate() + 15);
+                document.getElementById('saleDueDate').value = d.toISOString().split('T')[0];
+            } else {
+                container.classList.add('hidden');
+            }
+        }
+
+        function addToSaleCart() {
+            const prodId = document.getElementById('saleProductId').value;
+            const qty = parseInt(document.getElementById('saleProductQty').value) || 1;
+            const p = db.products.find(prod => prod.id === prodId);
+            if (!p) return;
+
+            const existing = currentSaleCart.find(item => item.productId === prodId);
+            if (existing) {
+                existing.qty += qty;
+            } else {
+                currentSaleCart.push({
+                    productId: p.id,
+                    name: p.name,
+                    price: p.sellPrice,
+                    buyPrice: p.buyPrice,
+                    qty
+                });
+            }
+            renderNewSaleWizard();
+        }
+
+        function removeFromSaleCart(index) {
+            currentSaleCart.splice(index, 1);
+            renderNewSaleWizard();
+        }
+
+        function finalizeSale() {
+            if (currentSaleCart.length === 0) {
+                showToast('Agrega al menos un producto a la venta.', 'error');
+                return;
+            }
+            const customerId = document.getElementById('saleCustomerId').value;
+            if (!customerId) {
+                showToast('Selecciona un cliente para la venta.', 'error');
+                return;
+            }
+            const paymentMethod = document.getElementById('salePaymentMethod').value;
+            const dueDate = paymentMethod === 'Cuenta corriente' ? document.getElementById('saleDueDate').value : null;
+
+            let total = 0;
+            let costTotal = 0;
+            currentSaleCart.forEach(item => {
+                total += item.price * item.qty;
+                costTotal += item.buyPrice * item.qty;
+            });
+
+            const customer = db.customers.find(c => c.id === customerId);
+            const saleId = 'SALE_' + Date.now();
+
+            const newSale = {
+                id: saleId,
+                customerId,
+                customerName: customer ? customer.name : 'Cliente',
+                items: currentSaleCart,
+                total,
+                costTotal,
+                profit: total - costTotal,
+                paymentMethod,
+                dueDate,
+                status: 'Completada',
+                date: new Date().toISOString()
+            };
+
+            // Deduct stock and record inventory movement
+            currentSaleCart.forEach(item => {
+                const prod = db.products.find(p => p.id === item.productId);
+                if (prod) {
+                    prod.stock = Math.max(0, prod.stock - item.qty);
+                    db.inventoryMovements.push({
+                        id: 'MOV_' + Date.now() + Math.random(),
+                        productId: prod.id,
+                        productName: prod.name,
+                        type: 'Venta',
+                        qty: item.qty,
+                        date: new Date().toISOString().split('T')[0],
+                        reason: `Venta #${saleId.substring(saleId.length-6)}`
+                    });
+                }
+            });
+
+            db.sales.push(newSale);
+            saveDatabase();
+            closeModal();
+            showToast('¡Venta registrada con éxito y stock actualizado!', 'success');
+            updateDashboard();
+        }
+
+        function renderSalesList() {
+            const container = document.getElementById('salesContainer');
+            const search = document.getElementById('salesSearchInput').value.toLowerCase();
+
+            let filtered = db.sales.filter(s => s.customerName.toLowerCase().includes(search) || s.id.toLowerCase().includes(search));
+
+            if (filtered.length === 0) {
+                container.innerHTML = `<div class="text-center py-12 text-gray-400 text-sm">No se encontraron ventas registradas.</div>`;
+                return;
+            }
+
+            let html = '';
+            filtered.slice().reverse().forEach(s => {
+                html += `
+                    <div class="bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span class="font-bold text-gray-900 dark:text-white text-base">Venta #${s.id.substring(s.id.length-6)}</span>
+                                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-orange-100 text-natura-orange">${s.paymentMethod}</span>
+                            </div>
+                            <p class="text-xs text-gray-600 dark:text-gray-300 font-medium mt-0.5">Cliente: <span class="font-bold">${s.customerName}</span> • ${s.date.split('T')[0]}</p>
+                            <p class="text-xs text-gray-400 mt-1">${s.items.map(i => i.qty + 'x ' + i.name).join(', ')}</p>
+                        </div>
+                        <div class="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
+                            <div class="text-right">
+                                <span class="text-lg font-bold text-natura-orange">$${s.total.toLocaleString()}</span>
+                                <p class="text-[10px] text-emerald-600 font-semibold">Ganancia: +$${s.profit.toLocaleString()}</p>
+                            </div>
+                            <button onclick="generateSaleReceiptPDF('${s.id}')" class="p-2.5 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-100 transition" title="Comprobante PDF">
+                                <i class="fa-solid fa-file-pdf text-base"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        // --- DEBTS & PAYMENTS MODULE LOGIC ---
+        let currentDebtFilter = 'all';
+
+        function setDebtFilter(filter) {
+            currentDebtFilter = filter;
+            document.querySelectorAll('.debt-tab-btn').forEach(btn => {
+                btn.className = 'debt-tab-btn px-4 py-2 rounded-xl text-xs font-semibold bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 transition whitespace-nowrap border border-gray-200 dark:border-gray-700';
+            });
+            event.target.className = 'debt-tab-btn px-4 py-2 rounded-xl text-xs font-semibold bg-natura-orange text-white transition whitespace-nowrap shadow-sm';
+            renderDebtsList(filter);
+        }
+
+        function renderDebtsList(filter = 'all') {
+            const container = document.getElementById('debtsContainer');
+            const now = new Date();
+            now.setHours(0,0,0,0);
+
+            let html = '';
+            let count = 0;
+
+            db.customers.forEach(c => {
+                const balance = getCustomerBalance(c.id);
+                if (balance <= 0) return;
+
+                const dueDateStr = getCustomerNextDueDate(c.id);
+                let diffDays = 0;
+                let statusType = 'normal';
+
+                if (dueDateStr) {
+                    const dueDate = new Date(dueDateStr);
+                    dueDate.setHours(0,0,0,0);
+                    diffDays = Math.ceil((dueDate - now) / (1000 * 60 * 60 * 24));
+
+                    if (diffDays < 0) statusType = 'vencido';
+                    else if (diffDays === 0) statusType = 'hoy';
+                    else statusType = 'proximo';
+                }
+
+                if (filter === 'vencidos' && statusType !== 'vencido') return;
+                if (filter === 'hoy' && statusType !== 'hoy') return;
+                if (filter === 'proximos' && statusType !== 'proximo') return;
+
+                count++;
+                let badgeCol = statusType === 'vencido' ? 'bg-rose-100 text-rose-700 dark:bg-rose-950/50 dark:text-rose-300' : statusType === 'hoy' ? 'bg-amber-100 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300' : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300';
+                let badgeText = statusType === 'vencido' ? `Vencida hace ${Math.abs(diffDays)} días` : statusType === 'hoy' ? 'Vence hoy' : `Vence en ${diffDays} días`;
+
+                html += `
+                    <div class="bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 rounded-2xl bg-amber-100 dark:bg-amber-950/50 text-amber-600 flex items-center justify-center font-bold text-lg overflow-hidden shrink-0">
+                                ${c.name.substring(0,2).toUpperCase()}
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-gray-900 dark:text-white text-base">${c.name}</h3>
+                                <p class="text-xs text-gray-500">${c.whatsapp} • Vencimiento: ${dueDateStr || 'Sin fecha'}</p>
+                                <span class="inline-block mt-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold ${badgeCol}">${badgeText}</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
+                            <div class="text-right">
+                                <span class="text-lg font-bold text-rose-600">$${balance.toLocaleString()}</span>
+                            </div>
+                            <div class="flex gap-2">
+                                <button onclick="openWhatsAppModalForCustomer('${c.id}')" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs rounded-xl flex items-center gap-1 shadow">
+                                    <i class="fa-brands fa-whatsapp text-sm"></i> Recordar
+                                </button>
+                                <button onclick="openRegisterPaymentModal('${c.id}')" class="px-3.5 py-2 bg-natura-orange hover:bg-natura-orangeDark text-white font-semibold text-xs rounded-xl flex items-center gap-1 shadow">
+                                    <i class="fa-solid fa-wallet text-xs"></i> Cobrar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html || `<div class="text-center py-12 text-gray-400 text-sm">No hay deudores en esta categoría. ¡Excelente trabajo de cobro! ✨</div>`;
+        }
+
+        function openRegisterPaymentModal(customerId) {
+            const c = db.customers.find(cust => cust.id === customerId);
+            const balance = getCustomerBalance(customerId);
+
+            let html = `
+                <div class="p-4 bg-natura-orange text-white flex justify-between items-center">
+                    <h3 class="font-bold text-lg"><i class="fa-solid fa-wallet"></i> Registrar Pago: ${c ? c.name : ''}</h3>
+                    <button onclick="closeModal()" class="text-white hover:bg-white/20 p-2 rounded-xl"><i class="fa-solid fa-xmark text-lg"></i></button>
+                </div>
+                <div class="p-4 overflow-y-auto max-h-[70vh] space-y-4">
+                    <div class="bg-natura-sageLight dark:bg-gray-700/50 p-4 rounded-2xl flex justify-between items-center">
+                        <div>
+                            <span class="text-xs text-gray-600 dark:text-gray-300 font-semibold">Deuda Actual Total</span>
+                            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">$${balance.toLocaleString()}</h2>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">Monto a Pagar ($) *</label>
+                        <input type="number" id="paymentAmountInput" value="${balance}" class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-lg font-bold focus:border-natura-orange focus:outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">Método de Pago</label>
+                        <select id="paymentMethodInput" class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-sm font-medium focus:border-natura-orange">
+                            <option value="Efectivo">Efectivo</option>
+                            <option value="Transferencia">Transferencia</option>
+                            <option value="Mercado Pago">Mercado Pago</option>
+                            <option value="Otro">Otro</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">Observaciones / Nota</label>
+                        <input type="text" id="paymentNotesInput" placeholder="Ej: Pago parcial acordado" class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-sm focus:border-natura-orange">
+                    </div>
+                </div>
+                <div class="p-4 bg-white dark:bg-gray-800 border-t border-gray-100 dark:border-gray-700 flex justify-end gap-2">
+                    <button onclick="closeModal()" class="px-4 py-2.5 bg-gray-200 dark:bg-gray-700 rounded-xl text-xs font-semibold">Cancelar</button>
+                    <button onclick="savePayment('${customerId}')" class="px-6 py-2.5 bg-natura-orange text-white font-semibold rounded-xl text-sm shadow-md">Registrar Pago</button>
+                </div>
+            `;
+            openModal(html);
+        }
+
+        function savePayment(customerId) {
+            const amount = parseFloat(document.getElementById('paymentAmountInput').value) || 0;
+            const method = document.getElementById('paymentMethodInput').value;
+            const notes = document.getElementById('paymentNotesInput').value.trim();
+
+            if (amount <= 0) {
+                showToast('Ingresa un monto de pago válido.', 'error');
+                return;
+            }
+
+            const newPayment = {
+                id: 'PAY_' + Date.now(),
+                customerId,
+                amount,
+                method,
+                notes,
+                date: new Date().toISOString().split('T')[0]
+            };
+
+            db.payments.push(newPayment);
+            saveDatabase();
+            closeModal();
+            showToast(`¡Pago de $${amount.toLocaleString()} registrado con éxito!`, 'success');
+            updateDashboard();
+            renderClientsList();
+            if (document.getElementById('view-deudas').classList.contains('hidden') === false) {
+                renderDebtsList(currentDebtFilter);
+            }
+        }
+
+        // --- WHATSAPP TEMPLATES & CUSTOM MESSAGES ---
+        function openWhatsAppModalForCustomer(customerId) {
+            const c = db.customers.find(cust => cust.id === customerId);
+            if (!c) return;
+
+            const balance = getCustomerBalance(c.id);
+            const nextDue = getCustomerNextDueDate(c.id);
+
+            let templateOptions = db.messageTemplates.map(t => `<option value="${t.id}">${t.title}</option>`).join('');
+
+            let html = `
+                <div class="p-4 bg-natura-orange text-white flex justify-between items-center">
+                    <h3 class="font-bold text-lg"><i class="fa-brands fa-whatsapp"></i> Enviar WhatsApp a ${c.name}</h3>
+                    <button onclick="closeModal()" class="text-white hover:bg-white/20 p-2 rounded-xl"><i class="fa-solid fa-xmark text-lg"></i></button>
+                </div>
+                <div class="p-4 overflow-y-auto max-h-[70vh] space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">Seleccionar Plantilla</label>
+                        <select id="waTemplateSelect" onchange="loadWhatsAppTemplateText('${c.id}')" class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-sm font-medium focus:border-natura-orange">
+                            ${templateOptions}
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">Mensaje Personalizado (Variables automáticas reemplazadas)</label>
+                        <textarea id="waMessageBody" rows="5" class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-sm focus:border-natura-orange"></textarea>
+                    </div>
+                </div>
+                <div class="p-4 bg-white dark:bg-gray-800 border-t border-gray-100 dark:border-gray-700 flex justify-end gap-2">
+                    <button onclick="closeModal()" class="px-4 py-2.5 bg-gray-200 dark:bg-gray-700 rounded-xl text-xs font-semibold">Cancelar</button>
+                    <button onclick="dispatchCustomerWhatsApp('${c.whatsapp}')" class="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl text-sm shadow-md flex items-center gap-2">
+                        <i class="fa-brands fa-whatsapp text-base"></i> Abrir WhatsApp
+                    </button>
+                </div>
+            `;
+            openModal(html);
+            loadWhatsAppTemplateText(c.id);
+        }
+
+        function loadWhatsAppTemplateText(customerId) {
+            const c = db.customers.find(cust => cust.id === customerId);
+            const templateId = parseInt(document.getElementById('waTemplateSelect').value);
+            const t = db.messageTemplates.find(temp => temp.id === templateId);
+            if (!t || !c) return;
+
+            const balance = getCustomerBalance(c.id);
+            const nextDue = getCustomerNextDueDate(c.id) || 'pronto';
+
+            let msg = t.text
+                .replaceAll('{nombre}', c.name)
+                .replaceAll('{deuda}', `$${balance.toLocaleString()}`)
+                .replaceAll('{saldo}', `$${balance.toLocaleString()}`)
+                .replaceAll('{vencimiento}', nextDue)
+                .replaceAll('{negocio}', db.settings.businessName);
+
+            document.getElementById('waMessageBody').value = msg;
+        }
+
+        function dispatchCustomerWhatsApp(phone) {
+            const msg = document.getElementById('waMessageBody').value;
+            openWhatsApp(phone, msg);
+            closeModal();
+        }
+
+        function openMassWhatsAppModal() {
+            let html = `
+                <div class="p-4 bg-natura-orange text-white flex justify-between items-center">
+                    <h3 class="font-bold text-lg"><i class="fa-brands fa-whatsapp"></i> Recordar Deudas Masivo</h3>
+                    <button onclick="closeModal()" class="text-white hover:bg-white/20 p-2 rounded-xl"><i class="fa-solid fa-xmark text-lg"></i></button>
+                </div>
+                <div class="p-4 overflow-y-auto max-h-[70vh] space-y-3">
+                    <p class="text-xs text-gray-500">Selecciona los clientes a los que deseas enviar recordatorio de deuda individualmente:</p>
+                    <div id="massListContainer" class="space-y-2">
+            `;
+
+            let debtorsCount = 0;
+            db.customers.forEach(c => {
+                const balance = getCustomerBalance(c.id);
+                if (balance > 0) {
+                    debtorsCount++;
+                    html += `
+                        <label class="flex items-center justify-between bg-gray-50 dark:bg-gray-900 p-3 rounded-xl border border-gray-100 dark:border-gray-700 cursor-pointer">
+                            <div class="flex items-center gap-3">
+                                <input type="checkbox" value="${c.id}" class="mass-debtor-chk w-4 h-4 text-natura-orange rounded accent-orange-500" checked>
+                                <div>
+                                    <span class="font-bold text-gray-900 dark:text-white text-sm">${c.name}</span>
+                                    <p class="text-xs text-rose-600">Deuda: $${balance.toLocaleString()}</p>
+                                </div>
+                            </div>
+                            <span class="text-xs text-gray-400">${c.whatsapp}</span>
+                        </label>
+                    `;
+                }
+            });
+
+            if (debtorsCount === 0) {
+                html += `<p class="text-center text-gray-400 py-8 text-sm">No hay clientes con deudas pendientes.</p>`;
+            }
+
+            html += `</div></div>
+                <div class="p-4 bg-white dark:bg-gray-800 border-t border-gray-100 dark:border-gray-700 flex justify-end gap-2">
+                    <button onclick="closeModal()" class="px-4 py-2.5 bg-gray-200 dark:bg-gray-700 rounded-xl text-xs font-semibold">Cancelar</button>
+                    ${debtorsCount > 0 ? `<button onclick="dispatchMassWhatsApp()" class="px-6 py-2.5 bg-emerald-600 text-white font-semibold rounded-xl text-sm shadow-md flex items-center gap-2"><i class="fa-brands fa-whatsapp"></i> Preparar y Enviar</button>` : ''}
+                </div>
+            `;
+            openModal(html);
+        }
+
+        function dispatchMassWhatsApp() {
+            const chks = document.querySelectorAll('.mass-debtor-chk:checked');
+            if (chks.length === 0) {
+                showToast('Selecciona al menos un cliente.', 'error');
+                return;
+            }
+
+            let queue = [];
+            chks.forEach(chk => {
+                const c = db.customers.find(cust => cust.id === chk.value);
+                if (c) {
+                    const balance = getCustomerBalance(c.id);
+                    const msg = `Hola ${c.name} 😊 Te escribo de ${db.settings.businessName} para recordarte tu saldo pendiente de $${balance.toLocaleString()}. Cuando puedas, avisame así coordinamos. ¡Gracias!`;
+                    queue.push({ phone: c.whatsapp, msg });
+                }
+            });
+
+            closeModal();
+            // Open first one, prompt for next
+            if (queue.length > 0) {
+                openWhatsApp(queue[0].phone, queue[0].msg);
+                showToast(`Abriendo WhatsApp 1 de ${queue.length}.`, 'success');
+            }
+        }
+
+        // --- SECONDARY MODULES (Orders, Expenses, Reports, Messages Settings) ---
+        function openPedidosView() {
+            let ordersHtml = '';
+            db.orders.forEach(o => {
+                ordersHtml += `
+                    <div class="bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex justify-between items-center text-xs">
+                        <div>
+                            <span class="font-bold text-gray-900 dark:text-white text-sm">Pedido #${o.id} - ${o.customerName}</span>
+                            <p class="text-gray-500">Estado: <span class="font-semibold text-natura-orange">${o.status}</span> • ${o.date}</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="updateOrderStatus('${o.id}')" class="px-3 py-1.5 bg-gray-100 dark:bg-gray-700 rounded-lg font-semibold">Cambiar Estado</button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            let html = `
+                <div class="p-4 bg-natura-orange text-white flex justify-between items-center">
+                    <h3 class="font-bold text-lg"><i class="fa-solid fa-clipboard-list"></i> Gestión de Pedidos</h3>
+                    <button onclick="closeModal()" class="text-white hover:bg-white/20 p-2 rounded-xl"><i class="fa-solid fa-xmark text-lg"></i></button>
+                </div>
+                <div class="p-4 overflow-y-auto max-h-[70vh] space-y-3">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-xs font-bold uppercase text-gray-500">Pedidos Registrados</span>
+                        <button onclick="openNewOrderModal()" class="px-3 py-1.5 bg-natura-orange text-white text-xs font-bold rounded-xl"><i class="fa-solid fa-plus"></i> Nuevo Pedido</button>
+                    </div>
+                    <div class="space-y-2">
+                        ${ordersHtml || '<p class="text-center text-gray-400 py-8 text-sm">No hay pedidos registrados.</p>'}
+                    </div>
+                </div>
+                <div class="p-4 bg-white dark:bg-gray-800 border-t border-gray-100 dark:border-gray-700 flex justify-end">
+                    <button onclick="closeModal()" class="px-5 py-2.5 bg-natura-orange text-white font-semibold rounded-xl text-sm">Cerrar</button>
+                </div>
+            `;
+            openModal(html);
+        }
+
+        function openNewOrderModal() {
+            closeModal();
+            let customerOptions = db.customers.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+            let html = `
+                <div class="p-4 bg-natura-orange text-white flex justify-between items-center">
+                    <h3 class="font-bold text-lg"><i class="fa-solid fa-plus"></i> Nuevo Pedido</h3>
+                    <button onclick="closeModal()" class="text-white hover:bg-white/20 p-2 rounded-xl"><i class="fa-solid fa-xmark text-lg"></i></button>
+                </div>
+                <div class="p-4 space-y-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">Cliente</label>
+                        <select id="ordCustomerId" class="w-full px-3.5 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-sm font-medium">${customerOptions}</select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">Detalle / Productos del Pedido</label>
+                        <textarea id="ordDetails" rows="3" class="w-full px-3.5 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-sm" placeholder="Ej: 2x Tododia frambuesa, 1x Chronos..."></textarea>
+                    </div>
+                </div>
+                <div class="p-4 bg-white dark:bg-gray-800 border-t border-gray-100 dark:border-gray-700 flex justify-end gap-2">
+                    <button onclick="closeModal()" class="px-4 py-2 bg-gray-200 rounded-xl text-xs font-semibold">Cancelar</button>
+                    <button onclick="saveNewOrder()" class="px-5 py-2 bg-natura-orange text-white font-semibold rounded-xl text-xs">Guardar Pedido</button>
+                </div>
+            `;
+            openModal(html);
+        }
+
+        function saveNewOrder() {
+            const customerId = document.getElementById('ordCustomerId').value;
+            const details = document.getElementById('ordDetails').value.trim();
+            const customer = db.customers.find(c => c.id === customerId);
+
+            if (!details) {
+                showToast('Ingresa el detalle del pedido.', 'error');
+                return;
+            }
+
+            db.orders.push({
+                id: 'ORD_' + Date.now().toString().slice(-4),
+                customerId,
+                customerName: customer ? customer.name : 'Cliente',
+                details,
+                status: 'Pendiente',
+                date: new Date().toISOString().split('T')[0]
+            });
+
+            saveDatabase();
+            closeModal();
+            showToast('Pedido registrado con éxito.', 'success');
+        }
+
+        function updateOrderStatus(id) {
+            const o = db.orders.find(ord => ord.id === id);
+            if (!o) return;
+            const states = ['Pendiente', 'Preparando', 'Listo', 'Entregado', 'Cancelado'];
+            let currentIndex = states.indexOf(o.status);
+            o.status = states[(currentIndex + 1) % states.length];
+            saveDatabase();
+            showToast(`Estado de pedido actualizado a: ${o.status}`, 'success');
+            openPedidosView();
+        }
+
+        function openGastosView() {
+            let expensesHtml = '';
+            let totalExpenses = 0;
+            db.expenses.forEach(e => {
+                totalExpenses += e.amount;
+                expensesHtml += `
+                    <div class="bg-white dark:bg-gray-800 p-3 rounded-xl border border-gray-100 dark:border-gray-700 flex justify-between items-center text-xs">
+                        <div>
+                            <span class="font-bold text-gray-900 dark:text-white">${e.concept}</span>
+                            <p class="text-gray-500">${e.category} • ${e.date}</p>
+                        </div>
+                        <span class="font-bold text-rose-600">-$${e.amount.toLocaleString()}</span>
+                    </div>
+                `;
+            });
+
+            let html = `
+                <div class="p-4 bg-natura-orange text-white flex justify-between items-center">
+                    <h3 class="font-bold text-lg"><i class="fa-solid fa-receipt"></i> Gastos del Negocio</h3>
+                    <button onclick="closeModal()" class="text-white hover:bg-white/20 p-2 rounded-xl"><i class="fa-solid fa-xmark text-lg"></i></button>
+                </div>
+                <div class="p-4 overflow-y-auto max-h-[70vh] space-y-3">
+                    <div class="bg-rose-50 dark:bg-rose-950/40 p-4 rounded-2xl flex justify-between items-center">
+                        <span class="text-xs font-semibold text-rose-700 dark:text-rose-300">Total Gastos Registrados</span>
+                        <span class="text-xl font-bold text-rose-600">-$${totalExpenses.toLocaleString()}</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-bold uppercase text-gray-500">Historial</span>
+                        <button onclick="openNewExpenseModal()" class="px-3 py-1.5 bg-natura-orange text-white text-xs font-bold rounded-xl"><i class="fa-solid fa-plus"></i> Registrar Gasto</button>
+                    </div>
+                    <div class="space-y-2">
+                        ${expensesHtml || '<p class="text-center text-gray-400 py-6 text-sm">No hay gastos registrados.</p>'}
+                    </div>
+                </div>
+                <div class="p-4 bg-white dark:bg-gray-800 border-t border-gray-100 dark:border-gray-700 flex justify-end">
+                    <button onclick="closeModal()" class="px-5 py-2.5 bg-natura-orange text-white font-semibold rounded-xl text-sm">Cerrar</button>
+                </div>
+            `;
+            openModal(html);
+        }
+
+        function openNewExpenseModal() {
+            closeModal();
+            let html = `
+                <div class="p-4 bg-natura-orange text-white flex justify-between items-center">
+                    <h3 class="font-bold text-lg"><i class="fa-solid fa-plus"></i> Registrar Gasto</h3>
+                    <button onclick="closeModal()" class="text-white hover:bg-white/20 p-2 rounded-xl"><i class="fa-solid fa-xmark text-lg"></i></button>
+                </div>
+                <div class="p-4 space-y-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">Concepto</label>
+                        <input type="text" id="expConcept" class="w-full px-3.5 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-sm" placeholder="Ej: Compra de mercadería ciclo 12">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">Categoría</label>
+                        <select id="expCategory" class="w-full px-3.5 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-sm font-medium">
+                            <option value="Compra mercadería">Compra de mercadería</option>
+                            <option value="Envíos">Envíos</option>
+                            <option value="Packaging">Packaging</option>
+                            <option value="Publicidad">Publicidad</option>
+                            <option value="Otros">Otros</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">Monto ($)</label>
+                        <input type="number" id="expAmount" class="w-full px-3.5 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-sm font-bold">
+                    </div>
+                </div>
+                <div class="p-4 bg-white dark:bg-gray-800 border-t border-gray-100 dark:border-gray-700 flex justify-end gap-2">
+                    <button onclick="closeModal()" class="px-4 py-2 bg-gray-200 rounded-xl text-xs font-semibold">Cancelar</button>
+                    <button onclick="saveExpense()" class="px-5 py-2 bg-natura-orange text-white font-semibold rounded-xl text-xs">Guardar Gasto</button>
+                </div>
+            `;
+            openModal(html);
+        }
+
+        function saveExpense() {
+            const concept = document.getElementById('expConcept').value.trim();
+            const category = document.getElementById('expCategory').value;
+            const amount = parseFloat(document.getElementById('expAmount').value) || 0;
+
+            if (!concept || amount <= 0) {
+                showToast('Completa el concepto y el monto del gasto.', 'error');
+                return;
+            }
+
+            db.expenses.push({
+                id: 'EXP_' + Date.now(),
+                concept,
+                category,
+                amount,
+                date: new Date().toISOString().split('T')[0]
+            });
+
+            saveDatabase();
+            closeModal();
+            showToast('Gasto registrado con éxito.', 'success');
+        }
+
+        function openReportesView() {
+            let totalVendido = 0;
+            let totalGanancia = 0;
+            db.sales.forEach(s => {
+                totalVendido += s.total;
+                totalGanancia += s.profit;
+            });
+
+            let totalGastos = 0;
+            db.expenses.forEach(e => totalGastos += e.amount);
+
+            let html = `
+                <div class="p-4 bg-natura-orange text-white flex justify-between items-center">
+                    <h3 class="font-bold text-lg"><i class="fa-solid fa-chart-pie"></i> Reportes y Estadísticas</h3>
+                    <button onclick="closeModal()" class="text-white hover:bg-white/20 p-2 rounded-xl"><i class="fa-solid fa-xmark text-lg"></i></button>
+                </div>
+                <div class="p-4 overflow-y-auto max-h-[70vh] space-y-4">
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-gray-50 dark:bg-gray-900 p-3.5 rounded-2xl border border-gray-100 dark:border-gray-700">
+                            <span class="text-xs text-gray-500">Total Vendido</span>
+                            <h4 class="text-xl font-bold text-gray-900 dark:text-white mt-1">$${totalVendido.toLocaleString()}</h4>
+                        </div>
+                        <div class="bg-gray-50 dark:bg-gray-900 p-3.5 rounded-2xl border border-gray-100 dark:border-gray-700">
+                            <span class="text-xs text-gray-500">Ganancia Bruta</span>
+                            <h4 class="text-xl font-bold text-emerald-600 mt-1">$${totalGanancia.toLocaleString()}</h4>
+                        </div>
+                    </div>
+                    <div class="bg-natura-sageLight dark:bg-gray-700/50 p-4 rounded-2xl flex justify-between items-center">
+                        <div>
+                            <span class="text-xs font-semibold text-gray-700 dark:text-gray-300">Resultado Neto (Ingresos - Gastos)</span>
+                            <h3 class="text-2xl font-bold text-gray-900 dark:text-white mt-0.5">$${(totalVendido - totalGastos).toLocaleString()}</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-4 bg-white dark:bg-gray-800 border-t border-gray-100 dark:border-gray-700 flex justify-end gap-2">
+                    <button onclick="generateReportPDF()" class="px-5 py-2.5 bg-blue-600 text-white font-semibold rounded-xl text-xs flex items-center gap-1 shadow"><i class="fa-solid fa-file-pdf"></i> Descargar Reporte PDF</button>
+                    <button onclick="closeModal()" class="px-5 py-2.5 bg-natura-orange text-white font-semibold rounded-xl text-sm">Cerrar</button>
+                </div>
+            `;
+            openModal(html);
+        }
+
+        function openMensajesView() {
+            let templatesHtml = '';
+            db.messageTemplates.forEach(t => {
+                templatesHtml += `
+                    <div class="bg-gray-50 dark:bg-gray-900 p-3.5 rounded-2xl border border-gray-100 dark:border-gray-700 space-y-1 text-xs">
+                        <span class="font-bold text-natura-orange">${t.title}</span>
+                        <p class="text-gray-700 dark:text-gray-300">${t.text}</p>
+                    </div>
+                `;
+            });
+
+            let html = `
+                <div class="p-4 bg-natura-orange text-white flex justify-between items-center">
+                    <h3 class="font-bold text-lg"><i class="fa-brands fa-whatsapp"></i> Plantillas de WhatsApp</h3>
+                    <button onclick="closeModal()" class="text-white hover:bg-white/20 p-2 rounded-xl"><i class="fa-solid fa-xmark text-lg"></i></button>
+                </div>
+                <div class="p-4 overflow-y-auto max-h-[70vh] space-y-3">
+                    <p class="text-xs text-gray-500">Estas plantillas se utilizan automáticamente al enviar recordatorios y avisos con variables como {nombre}, {deuda}, {saldo}, {vencimiento}.</p>
+                    <div class="space-y-2">
+                        ${templatesHtml}
+                    </div>
+                </div>
+                <div class="p-4 bg-white dark:bg-gray-800 border-t border-gray-100 dark:border-gray-700 flex justify-end">
+                    <button onclick="closeModal()" class="px-5 py-2.5 bg-natura-orange text-white font-semibold rounded-xl text-sm">Cerrar</button>
+                </div>
+            `;
+            openModal(html);
+        }
+
+        // --- PDF GENERATION MODULE (REAL PRINT WINDOW) ---
+        function generatePresupuestoPDF() {
+            if (currentSaleCart.length === 0) {
+                showToast('Agrega productos para generar el presupuesto.', 'error');
+                return;
+            }
+            const customer = db.customers.find(c => c.id === selectedSaleCustomerId);
+            let total = 0;
+            let itemsRows = '';
+            currentSaleCart.forEach(i => {
+                const sub = i.price * i.qty;
+                total += sub;
+                itemsRows += `<tr><td style="padding: 8px; border-bottom: 1px solid #ddd;">${i.name} (x${i.qty})</td><td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: right;">$${sub.toLocaleString()}</td></tr>`;
+            });
+
+            const win = window.open('', '_blank');
+            win.document.write(`
+                <html>
+                <head><title>Presupuesto Natura</title></head>
+                <body style="font-family: Arial, sans-serif; padding: 30px; color: #333;">
+                    <div style="text-align: center; border-bottom: 2px solid #ff6600; padding-bottom: 20px; margin-bottom: 20px;">
+                        <h1 style="color: #ff6600; margin: 0;">${db.settings.businessName}</h1>
+                        <p style="margin: 5px 0; font-size: 14px; color: #666;">Consultora Oficial Natura • WhatsApp: ${db.settings.whatsapp}</p>
+                    </div>
+                    <h3>Presupuesto / Pedido para: ${customer ? customer.name : 'Cliente'}</h3>
+                    <p>Fecha: ${new Date().toLocaleDateString()}</p>
+                    <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+                        <thead>
+                            <tr style="background: #f4f4f4;"><th style="padding: 8px; text-align: left;">Producto</th><th style="padding: 8px; text-align: right;">Subtotal</th></tr>
+                        </thead>
+                        <tbody>${itemsRows}</tbody>
+                    </table>
+                    <h2 style="text-align: right; margin-top: 20px; color: #ff6600;">Total: $${total.toLocaleString()}</h2>
+                    <p style="margin-top: 30px; font-style: italic; text-align: center; color: #666;">${db.settings.thankYou}</p>
+                    <div style="text-align: center; margin-top: 40px;">
+                        <button onclick="window.print()" style="background: #ff6600; color: white; border: none; padding: 12px 24px; font-size: 16px; border-radius: 8px; cursor: pointer;">🖨️ Imprimir / Guardar PDF</button>
+                    </div>
+                </body>
+                </html>
+            `);
+            win.document.close();
+        }
+
+        function generateSaleReceiptPDF(saleId) {
+            const s = db.sales.find(sale => sale.id === saleId);
+            if (!s) return;
+
+            let itemsRows = '';
+            s.items.forEach(i => {
+                itemsRows += `<tr><td style="padding: 8px; border-bottom: 1px solid #ddd;">${i.name} (x${i.qty})</td><td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: right;">$${(i.price * i.qty).toLocaleString()}</td></tr>`;
+            });
+
+            const win = window.open('', '_blank');
+            win.document.write(`
+                <html>
+                <head><title>Comprobante Venta Natura</title></head>
+                <body style="font-family: Arial, sans-serif; padding: 30px; color: #333;">
+                    <div style="text-align: center; border-bottom: 2px solid #ff6600; padding-bottom: 20px; margin-bottom: 20px;">
+                        <h1 style="color: #ff6600; margin: 0;">${db.settings.businessName}</h1>
+                        <p style="margin: 5px 0; font-size: 14px; color: #666;">Comprobante de Venta #${s.id.substring(s.id.length-6)}</p>
+                    </div>
+                    <p><strong>Cliente:</strong> ${s.customerName}</p>
+                    <p><strong>Fecha:</strong> ${s.date.split('T')[0]}</p>
+                    <p><strong>Forma de Pago:</strong> ${s.paymentMethod}</p>
+                    <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+                        <thead>
+                            <tr style="background: #f4f4f4;"><th style="padding: 8px; text-align: left;">Producto</th><th style="padding: 8px; text-align: right;">Subtotal</th></tr>
+                        </thead>
+                        <tbody>${itemsRows}</tbody>
+                    </table>
+                    <h2 style="text-align: right; margin-top: 20px; color: #ff6600;">Total: $${s.total.toLocaleString()}</h2>
+                    <p style="margin-top: 30px; font-style: italic; text-align: center; color: #666;">${db.settings.thankYou}</p>
+                    <div style="text-align: center; margin-top: 40px;">
+                        <button onclick="window.print()" style="background: #ff6600; color: white; border: none; padding: 12px 24px; font-size: 16px; border-radius: 8px; cursor: pointer;">🖨️ Imprimir / Guardar PDF</button>
+                    </div>
+                </body>
+                </html>
+            `);
+            win.document.close();
+        }
+
+        function generateCustomerStatementPDF(customerId) {
+            const c = db.customers.find(cust => cust.id === customerId);
+            if (!c) return;
+            const balance = getCustomerBalance(c.id);
+
+            const win = window.open('', '_blank');
+            win.document.write(`
+                <html>
+                <head><title>Estado de Cuenta - ${c.name}</title></head>
+                <body style="font-family: Arial, sans-serif; padding: 30px; color: #333;">
+                    <div style="text-align: center; border-bottom: 2px solid #ff6600; padding-bottom: 20px; margin-bottom: 20px;">
+                        <h1 style="color: #ff6600; margin: 0;">${db.settings.businessName}</h1>
+                        <p style="margin: 5px 0; font-size: 14px; color: #666;">Estado de Cuenta Corriente</p>
+                    </div>
+                    <h3>Cliente: ${c.name}</h3>
+                    <p>WhatsApp: ${c.whatsapp}</p>
+                    <h2 style="color: #e05a00; margin-top: 30px;">Saldo Pendiente Total: $${balance.toLocaleString()}</h2>
+                    <p style="margin-top: 30px; font-style: italic; text-align: center; color: #666;">Alias para pagos: ${db.settings.alias}</p>
+                    <div style="text-align: center; margin-top: 40px;">
+                        <button onclick="window.print()" style="background: #ff6600; color: white; border: none; padding: 12px 24px; font-size: 16px; border-radius: 8px; cursor: pointer;">🖨️ Imprimir / Guardar PDF</button>
+                    </div>
+                </body>
+                </html>
+            `);
+            win.document.close();
+        }
+
+        function generateReportPDF() {
+            let totalVendido = 0;
+            db.sales.forEach(s => totalVendido += s.total);
+
+            const win = window.open('', '_blank');
+            win.document.write(`
+                <html>
+                <head><title>Reporte Financiero Natura</title></head>
+                <body style="font-family: Arial, sans-serif; padding: 30px; color: #333;">
+                    <div style="text-align: center; border-bottom: 2px solid #ff6600; padding-bottom: 20px; margin-bottom: 20px;">
+                        <h1 style="color: #ff6600; margin: 0;">${db.settings.businessName}</h1>
+                        <p style="margin: 5px 0; font-size: 14px; color: #666;">Reporte General del Negocio</p>
+                    </div>
+                    <h3>Fecha de emisión: ${new Date().toLocaleDateString()}</h3>
+                    <h2>Total Vendido: $${totalVendido.toLocaleString()}</h2>
+                    <p>Total Clientes: ${db.customers.length}</p>
+                    <p>Total Productos en Stock: ${db.products.reduce((a,b)=>a+b.stock,0)}</p>
+                    <div style="text-align: center; margin-top: 40px;">
+                        <button onclick="window.print()" style="background: #ff6600; color: white; border: none; padding: 12px 24px; font-size: 16px; border-radius: 8px; cursor: pointer;">🖨️ Imprimir / Guardar PDF</button>
+                    </div>
+                </body>
+                </html>
+            `);
+            win.document.close();
+        }
+
+        // --- SETTINGS & BACKUP ACTIONS ---
+        function loadConfigForm() {
+            document.getElementById('cfgBusinessName').value = db.settings.businessName;
+            document.getElementById('cfgUserName').value = db.settings.userName;
+            document.getElementById('cfgWhatsapp').value = db.settings.whatsapp;
+            document.getElementById('cfgAlias').value = db.settings.alias;
+            document.getElementById('cfgLogoUrl').value = db.settings.logoUrl;
+            document.getElementById('cfgThankYou').value = db.settings.thankYou;
+            document.getElementById('themeSelector').value = db.settings.theme || 'light';
+        }
+
+        function saveBusinessConfig() {
+            db.settings.businessName = document.getElementById('cfgBusinessName').value.trim();
+            db.settings.userName = document.getElementById('cfgUserName').value.trim();
+            db.settings.whatsapp = document.getElementById('cfgWhatsapp').value.trim();
+            db.settings.alias = document.getElementById('cfgAlias').value.trim();
+            db.settings.logoUrl = document.getElementById('cfgLogoUrl').value.trim();
+            db.settings.thankYou = document.getElementById('cfgThankYou').value.trim();
+
+            saveDatabase();
+            showToast('Configuración guardada con éxito.', 'success');
+            updateDashboard();
+        }
+
+        function updateSecurityPin() {
+            const newPin = document.getElementById('newPinInput').value.trim();
+            if (newPin.length === 4) {
+                db.settings.pin = newPin;
+                saveDatabase();
+                showToast('PIN de seguridad actualizado con éxito.', 'success');
+                document.getElementById('newPinInput').value = '';
+            } else {
+                showToast('El PIN debe tener exactamente 4 dígitos.', 'error');
+            }
+        }
+
+        function changeThemeMode(mode) {
+            db.settings.theme = mode;
+            saveDatabase();
+            applyTheme(mode);
+            showToast('Tema actualizado.', 'success');
+        }
+
+        function applyTheme(mode) {
+            if (mode === 'dark') {
+                document.documentElement.classList.add('dark');
+            } else if (mode === 'light') {
+                document.documentElement.classList.remove('dark');
+            } else {
+                // Auto system
+                if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                    document.documentElement.classList.add('dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                }
+            }
+        }
+
+        function exportDataBackup() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `natura_backup_${new Date().toISOString().split('T')[0]}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+            showToast('Backup exportado con éxito.', 'success');
+        }
+
+        function importDataBackup(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const parsed = JSON.parse(e.target.result);
+                    if (parsed && parsed.settings) {
+                        db = parsed;
+                        saveDatabase();
+                        showToast('¡Datos restaurados con éxito!', 'success');
+                        setTimeout(() => window.location.reload(), 1000);
+                    } else {
+                        showToast('Archivo de backup inválido.', 'error');
+                    }
+                } catch(err) {
+                    showToast('Error al leer el archivo JSON.', 'error');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function confirmFactoryReset() {
+            if (confirm('⚠️ ATENCIÓN: ¿Estás segura de formatear y borrar todos los datos de la aplicación? Esta acción es irreversible.')) {
+                localStorage.removeItem(DB_KEY);
+                showToast('Aplicación formateada. Reiniciando...', 'success');
+                setTimeout(() => window.location.reload(), 1200);
+            }
+        }
+
+        // --- INITIALIZATION ON WINDOW LOAD ---
+        window.onload = function() {
+            loadDatabase();
+            initAuth();
+            updateDashboard();
+        };
+    </script>
+    <!-- SUPABASE: login con Google + sincronización (offline-first) -->
+    <button id="cloudPill" onclick="cloudSync(true)" title="Sincronizar" class="hidden fixed bottom-20 right-3 z-40 w-11 h-11 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-md flex items-center justify-center text-natura-sageDark active:scale-95 transition">
+        <i id="cloudIcon" class="fa-solid fa-cloud"></i>
+    </button>
+    <script>
+    (() => {
+        const SB_URL = 'https://erjwaowvyutbqqtbeuis.supabase.co';
+        const SB_KEY = 'sb_publishable_7xxfcSXvcJKLomkYogTp1A_GDWWEoeG'; // clave publicable: segura en el frontend gracias a RLS
+        const TABLES = { customers:'customers', products:'products', sales:'sales', payments:'payments', expenses:'expenses', orders:'orders', inventoryMovements:'inventory_movements', messageTemplates:'message_templates' };
+        const sb = window.supabase ? window.supabase.createClient(SB_URL, SB_KEY) : null;
+        let user = null, syncing = false, timer = null, lastAuto = 0;
+
+        const stable = v => v && typeof v === 'object'
+            ? (Array.isArray(v) ? '[' + v.map(stable).join(',') + ']' : '{' + Object.keys(v).sort().map(k => JSON.stringify(k) + ':' + stable(v[k])).join(',') + '}')
+            : JSON.stringify(v);
+        const hash = v => { const s = stable(v); let h = 5381; for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0; return h + ':' + s.length; };
+        const snapKey = () => 'NATURA_SYNC_SNAP_' + user.id;
+
+        function setState(s) {
+            const pill = document.getElementById('cloudPill'), icon = document.getElementById('cloudIcon');
+            if (!pill) return;
+            pill.classList.toggle('hidden', !user);
+            const map = { ok: ['fa-cloud-arrow-up', 'text-natura-sageDark'], syncing: ['fa-rotate fa-spin', 'text-natura-orange'], error: ['fa-triangle-exclamation', 'text-red-500'], offline: ['fa-cloud', 'text-gray-400'] };
+            const [ic, col] = map[s] || map.ok;
+            icon.className = 'fa-solid ' + ic;
+            pill.className = pill.className.replace(/text-(natura-sageDark|natura-orange|red-500|gray-400)/g, '') + ' ' + col;
+        }
+
+        function renderAuthBox() {
+            const btn = document.getElementById('googleBtn'), st = document.getElementById('cloudStatus');
+            if (!btn || !st) return;
+            btn.classList.toggle('hidden', !!user);
+            st.innerHTML = user
+                ? `<i class="fa-solid fa-cloud text-natura-sageDark"></i> Conectada como <b>${user.email}</b> · <button onclick="cloudLogout()" class="underline">Cerrar sesión</button>`
+                : 'Guarda tus datos en la nube y úsalos en todos tus dispositivos.';
+            setState('ok');
+        }
+
+        async function pushChanges(snap) {
+            for (const [col, table] of Object.entries(TABLES)) {
+                const items = Array.isArray(db[col]) ? db[col] : [];
+                const s = snap[col] || (snap[col] = {}), cur = {}, up = [];
+                items.forEach(it => { const id = String(it.id), h = hash(it); cur[id] = h; if (s[id] !== h) up.push({ id, user_id: user.id, data: it, deleted: false }); });
+                Object.keys(s).forEach(id => { if (!(id in cur) && s[id] !== 'deleted') up.push({ id, user_id: user.id, data: {}, deleted: true }); });
+                for (let i = 0; i < up.length; i += 200) {
+                    const { error } = await sb.from(table).upsert(up.slice(i, i + 200), { onConflict: 'user_id,id' });
+                    if (error) throw error;
+                }
+                up.forEach(r => { s[r.id] = r.deleted ? 'deleted' : cur[r.id]; });
+            }
+            const { pin, ...pub } = db.settings || {}; // el PIN nunca se sube
+            const h = hash(pub);
+            if (snap.settings !== h) {
+                const { error } = await sb.from('settings').upsert({ user_id: user.id, data: pub }, { onConflict: 'user_id' });
+                if (error) throw error;
+                snap.settings = h;
+            }
+        }
+
+        async function pullAll(snap) {
+            let changed = false;
+            for (const [col, table] of Object.entries(TABLES)) {
+                let rows = [];
+                for (let from = 0; ; from += 1000) {
+                    const { data, error } = await sb.from(table).select('id,data,deleted').order('id').range(from, from + 999);
+                    if (error) throw error;
+                    rows = rows.concat(data);
+                    if (data.length < 1000) break;
+                }
+                if (!Array.isArray(db[col])) db[col] = [];
+                const s = snap[col] || (snap[col] = {});
+                rows.forEach(r => {
+                    const idx = db[col].findIndex(x => String(x.id) === r.id);
+                    if (r.deleted) { if (idx > -1) { db[col].splice(idx, 1); changed = true; } s[r.id] = 'deleted'; return; }
+                    const h = hash(r.data);
+                    if (s[r.id] === h) return;
+                    if (idx > -1) db[col][idx] = r.data; else db[col].push(r.data);
+                    s[r.id] = h; changed = true;
+                });
+            }
+            const { data: st, error } = await sb.from('settings').select('data').maybeSingle();
+            if (error) throw error;
+            if (st && st.data && hash(st.data) !== snap.settings) {
+                Object.assign(db.settings, st.data); snap.settings = hash(st.data); changed = true;
+            }
+            if (changed) {
+                localStorage.setItem(DB_KEY, JSON.stringify(db));
+                applyTheme(db.settings.theme || 'light'); updateDashboard(); updateNotificationsBadge();
+            }
+        }
+
+        window.cloudSync = async function (manual) {
+            if (!sb || !user || syncing) return;
+            if (!navigator.onLine) { setState('offline'); if (manual) showToast('Sin conexión: se sincronizará cuando vuelva internet.', 'error'); return; }
+            syncing = true; setState('syncing');
+            try {
+                const key = snapKey(), first = !localStorage.getItem(key);
+                const snap = JSON.parse(localStorage.getItem(key) || '{}');
+                if (first) { await pullAll(snap); await pushChanges(snap); } else { await pushChanges(snap); await pullAll(snap); }
+                localStorage.setItem(key, JSON.stringify(snap));
+                setState('ok'); if (manual) showToast('Datos sincronizados ☁️', 'success');
+            } catch (e) {
+                console.error(e); setState('error');
+                if (manual) showToast('No se pudo sincronizar: ' + (e.message || e), 'error');
+            } finally { syncing = false; }
+        };
+
+        window.cloudLogin = async function () {
+            if (!sb) return showToast('No se pudo cargar Supabase. Revisa tu conexión.', 'error');
+            if (location.protocol === 'file:') return showToast('El login con Google requiere abrir la app desde una URL https (Netlify, GitHub Pages, etc.).', 'error');
+            const { error } = await sb.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: location.origin + location.pathname } });
+            if (error) showToast('Error al iniciar sesión: ' + error.message, 'error');
+        };
+
+        window.cloudLogout = async function () {
+            await sb.auth.signOut(); user = null; renderAuthBox(); showToast('Sesión cerrada. Tus datos siguen en este dispositivo.', 'success');
+        };
+
+        async function onUser(u) {
+            user = u; renderAuthBox();
+            if (!user) return;
+            const owner = localStorage.getItem('NATURA_SYNC_OWNER');
+            if (owner && owner !== user.id) {
+                if (confirm('Este dispositivo tiene datos de otra cuenta de Google. ¿Reemplazarlos por los de esta cuenta?')) {
+                    localStorage.removeItem(DB_KEY); localStorage.setItem('NATURA_SYNC_OWNER', user.id); location.reload();
+                } else { await sb.auth.signOut(); user = null; renderAuthBox(); }
+                return;
+            }
+            localStorage.setItem('NATURA_SYNC_OWNER', user.id);
+            cloudSync();
+        }
+
+        // Cada vez que la app guarda localmente, programa una sincronización
+        const baseSave = window.saveDatabase;
+        window.saveDatabase = function () { baseSave(); if (user) { clearTimeout(timer); timer = setTimeout(() => cloudSync(), 1500); } };
+
+        // "Formatear" borra solo este dispositivo: al volver a entrar se restaura desde la nube
+        const baseReset = window.confirmFactoryReset;
+        window.confirmFactoryReset = function () {
+            Object.keys(localStorage).filter(k => k.startsWith('NATURA_SYNC_SNAP_')).forEach(k => localStorage.removeItem(k));
+            baseReset();
+        };
+
+        window.addEventListener('online', () => cloudSync());
+        document.addEventListener('visibilitychange', () => { if (!document.hidden && Date.now() - lastAuto > 30000) { lastAuto = Date.now(); cloudSync(); } });
+
+        window.onload = async function () {
+            loadDatabase(); initAuth(); updateDashboard();
+            if (!sb) return;
+            sb.auth.onAuthStateChange((ev, session) => { if (ev === 'SIGNED_IN' && (!user || user.id !== session.user.id)) onUser(session.user); });
+            const { data } = await sb.auth.getSession();
+            await onUser(data.session ? data.session.user : null);
+        };
+    })();
+    </script>
+
+</body>
+</html>
